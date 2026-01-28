@@ -2,9 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { authService } from "../services/auth.service";
-import { AuthState, LoginCredentials, RegisterCredentials, User } from "../types";
+import { AuthState } from "../types";
+import { LoginCredentials, RegisterCredentials } from "../services/auth.service";
 import toast from "react-hot-toast";
 
 interface AuthContextType extends AuthState {
@@ -18,7 +19,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
-    const pathname = usePathname();
     const [state, setState] = useState<AuthState>({
         user: null,
         isAuthenticated: false,
@@ -38,9 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 Cookies.set('token', localStorage.getItem('token')!);
             }
 
-            const user = await authService.me();
-            setState({ user, isAuthenticated: true, isLoading: false });
-        } catch (error) {
+            const response = await authService.getMe();
+            setState({ user: response.data.user, isAuthenticated: true, isLoading: false });
+        } catch {
             setState({ user: null, isAuthenticated: false, isLoading: false });
             Cookies.remove('token');
             localStorage.removeItem('token');
@@ -53,7 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: LoginCredentials) => {
         try {
-            const { data: { user, token } } = await authService.login(credentials);
+            const response = await authService.login(credentials);
+            const { user, token } = response.data;
             Cookies.set('token', token);
             localStorage.setItem('token', token);
             setState({ user, isAuthenticated: true, isLoading: false });
@@ -64,16 +65,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             else if (user.role === 'TUTOR') router.push('/tutor/dashboard');
             else router.push('/dashboard');
 
-        } catch (error: any) {
-            const msg = error.response?.data?.message || "Login failed";
-            toast.error(msg);
+        } catch (error: unknown) {
+            const msg = error instanceof Error && 'response' in error
+                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message)
+                : "Login failed";
+            toast.error(msg || "Login failed");
             throw error;
         }
     };
 
     const register = async (credentials: RegisterCredentials) => {
         try {
-            const { data: { user, token } } = await authService.register(credentials);
+            const response = await authService.register(credentials);
+            const { user, token } = response.data;
 
             Cookies.set('token', token);
             localStorage.setItem('token', token);
@@ -89,9 +93,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (user.role === 'ADMIN') router.push('/admin'); // unlikely via register form usually
                 else router.push('/dashboard');
             }
-        } catch (error: any) {
-            const msg = error.response?.data?.message || "Registration failed";
-            toast.error(msg);
+        } catch (error: unknown) {
+            const msg = error instanceof Error && 'response' in error
+                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message)
+                : "Registration failed";
+            toast.error(msg || "Registration failed");
             throw error;
         }
     };
