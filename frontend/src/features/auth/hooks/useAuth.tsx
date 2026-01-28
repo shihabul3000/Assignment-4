@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: LoginCredentials) => {
         try {
-            const { user, token } = await authService.login(credentials);
+            const { data: { user, token } } = await authService.login(credentials);
             Cookies.set('token', token);
             localStorage.setItem('token', token);
             setState({ user, isAuthenticated: true, isLoading: false });
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const register = async (credentials: RegisterCredentials) => {
         try {
-            const { user, token } = await authService.register(credentials);
+            const { data: { user, token } } = await authService.register(credentials);
 
             Cookies.set('token', token);
             localStorage.setItem('token', token);
