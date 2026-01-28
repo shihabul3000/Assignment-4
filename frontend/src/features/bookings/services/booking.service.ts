@@ -5,11 +5,8 @@ export const bookingService = {
     // Get all bookings for the current user (Student or Tutor)
     async getMyBookings(): Promise<Booking[]> {
         try {
-            // const response = await apiClient.get('/bookings');
-            // return response.data.data;
-
-            // Mock Data for now
-            return MOCK_BOOKINGS;
+            const response = await apiClient.get('/bookings');
+            return response.data.data.bookings;
         } catch (error) {
             console.error("Failed to fetch bookings", error);
             return [];
@@ -35,23 +32,21 @@ export const bookingService = {
                 message: error.response?.data?.message || "Failed to create booking"
             };
         }
-    }
-};
+    },
 
-const MOCK_BOOKINGS: Booking[] = [
-    {
-        id: 'b1',
-        studentId: 'u-me',
-        tutorId: '1',
-        startTime: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-        endTime: new Date(Date.now() + 90000000).toISOString(),
-        status: 'PENDING',
-        paymentStatus: 'PENDING',
-        paymentMethod: 'COD',
-        tutor: {
-            id: '1',
-            hourlyRate: 25,
-            user: { name: 'Dr. Sarah Smith', email: 'sarah@example.com' }
+    async updateBookingStatus(bookingId: string, status: 'CONFIRMED' | 'CANCELLED'): Promise<{ success: boolean; data?: Booking; message?: string }> {
+        try {
+            console.log(`Updating booking ${bookingId} to status ${status}`);
+            const response = await apiClient.patch(`/bookings/${bookingId}/status`, { status });
+            console.log('Update response:', response.data);
+            return { success: true, data: response.data.data.booking };
+        } catch (error: any) {
+            console.error('Update booking error:', error);
+            console.error('Error response:', error.response?.data);
+            return {
+                success: false,
+                message: error.response?.data?.message || `Failed to ${status === 'CONFIRMED' ? 'accept' : 'decline'} booking`
+            };
         }
     }
-];
+};

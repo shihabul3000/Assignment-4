@@ -4,17 +4,21 @@ export interface Booking {
     tutorId: string;
     startTime: string; // ISO Date
     endTime: string;   // ISO Date
+    dateTime?: string; // Backend uses dateTime instead of startTime
+    duration?: number; // Backend uses duration
     status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
     paymentStatus: 'PENDING' | 'PAID';
     paymentMethod: 'COD'; // Strict Type
     tutor?: {
         id: string;
-        user: { name: string; email: string };
-        hourlyRate: number;
+        name?: string;
+        user?: { name: string; email: string };
+        hourlyRate?: number;
     };
     student?: {
         id: string;
-        user: { name: string; email: string };
+        name?: string;
+        user?: { name: string; email: string };
     };
 }
 

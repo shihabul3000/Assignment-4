@@ -137,4 +137,57 @@ export const bookingController = {
             next(error);
         }
     },
+
+    async updateStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const user = req.user;
+
+            if (!id || typeof id !== 'string' || id.trim() === '') {
+                throw new ValidationError('Invalid booking ID');
+            }
+
+            if (!status || !['CONFIRMED', 'CANCELLED'].includes(status)) {
+                throw new ValidationError('Status must be CONFIRMED or CANCELLED');
+            }
+
+            // Find the booking
+            const booking = await prisma.booking.findUnique({
+                where: { id },
+            });
+
+            if (!booking) {
+                throw new NotFoundError('Booking');
+            }
+
+            // Only the tutor can accept/decline bookings
+            if (booking.tutorId !== user.id) {
+                throw new AuthorizationError('Only the assigned tutor can update booking status');
+            }
+
+            // Only pending bookings can be updated
+            if (booking.status !== 'PENDING') {
+                throw new ConflictError('Only pending bookings can be accepted or declined');
+            }
+
+            // Update the booking status
+            const updatedBooking = await prisma.booking.update({
+                where: { id },
+                data: { status },
+                include: {
+                    student: { select: { id: true, name: true, email: true } },
+                    tutor: { select: { id: true, name: true, email: true } },
+                },
+            });
+
+            res.json({
+                success: true,
+                data: { booking: updatedBooking },
+                message: `Booking ${status === 'CONFIRMED' ? 'accepted' : 'declined'} successfully`,
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
 };

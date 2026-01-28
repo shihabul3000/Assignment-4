@@ -9,6 +9,7 @@ const router = Router();
 router.post('/', requireAuth, bookingController.create);
 router.get('/', requireAuth, bookingController.getAll);
 router.get('/:id', requireAuth, bookingController.getById);
+router.patch('/:id/status', requireAuth, bookingController.updateStatus);
 
 // Review routes
 router.post('/:id/reviews', requireAuth, reviewController.create);
