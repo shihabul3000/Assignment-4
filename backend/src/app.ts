@@ -18,6 +18,24 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 
+// Root route
+app.get('/', (req: Request, res: Response) => {
+    res.json({
+        message: 'SkillBridge API',
+        version: '1.0.0',
+        status: 'running',
+        endpoints: {
+            health: '/health',
+            auth: '/api/auth',
+            tutors: '/api/tutors',
+            bookings: '/api/bookings',
+            categories: '/api/categories',
+            admin: '/api/admin'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Health check
 app.get('/health', (req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -89,13 +89,19 @@ export const authService = {
         }
 
         // Check password
+        // Check password
         const account = user.accounts.find((a: any) => a.providerId === 'credential');
         if (!account) {
+            console.log(`Login failed: No credential account found for user ${email}`);
             throw new AuthenticationError('Invalid email or password');
         }
 
+        console.log(`Verifying password for ${email}. Hash: ${account.password?.substring(0, 10)}...`);
         const isValidPassword = await bcrypt.compare(password, account.password || '');
+        console.log(`Password verification result: ${isValidPassword}`);
+
         if (!isValidPassword) {
+            console.log(`Login failed: Invalid password for ${email}`);
             throw new AuthenticationError('Invalid email or password');
         }
 

@@ -79,6 +79,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 };
 
 export const notFoundHandler = (req: Request, res: Response): void => {
+    console.log(`404 Not Found: ${req.method} ${req.path} from ${req.get('User-Agent')} origin: ${req.get('Origin')}`);
     res.status(404).json({
         success: false,
         error: {

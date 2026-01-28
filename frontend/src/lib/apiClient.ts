@@ -13,6 +13,7 @@ export const apiClient = axios.create({
 // Request Interceptor: Attach Token
 apiClient.interceptors.request.use(
     (config) => {
+        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('token');
             if (token) {

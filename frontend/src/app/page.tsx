@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { Search, Star, Users, Brain, Sparkles, CheckCircle } from "lucide-react";
+import { Search, Star, Users, Brain, Sparkles, CheckCircle, BookOpen, User } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
