@@ -83,9 +83,14 @@ export const tutorController = {
                 throw new ValidationError('Invalid tutor ID');
             }
 
-            // Look up by TutorProfile.id instead of User.id
-            const tutorProfile = await prisma.tutorProfile.findUnique({
-                where: { id },
+            // Look up by TutorProfile.id OR User.id
+            const tutorProfile = await prisma.tutorProfile.findFirst({
+                where: {
+                    OR: [
+                        { id },
+                        { userId: id }
+                    ]
+                },
                 include: {
                     user: true,
                     availabilities: true,

@@ -162,7 +162,10 @@ export const bookingController = {
             }
 
             // Only the tutor can accept/decline bookings
-            if (booking.tutorId !== user.id) {
+            // booking.tutorId references the User ID (not TutorProfile ID)
+            const isAssignedTutor = booking.tutorId === user.id;
+
+            if (!isAssignedTutor) {
                 throw new AuthorizationError('Only the assigned tutor can update booking status');
             }
 
