@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { adminService } from "@/features/admin/services/admin.service";
 import {
     User,
     Lock,
@@ -10,7 +11,8 @@ import {
     ShieldCheck,
     Save,
     AlertTriangle,
-    CreditCard
+    CreditCard,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -18,37 +20,69 @@ import toast from "react-hot-toast";
 export default function AdminSettingsPage() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
 
     // Profile State
     const [profile, setProfile] = useState({
-        name: user?.name || "Admin User",
-        email: user?.email || "admin@skillbridge.com"
+        name: "",
+        email: ""
     });
 
-    // Platform State (Simulated)
+    // Platform State
     const [platformConfig, setPlatformConfig] = useState({
         maintenanceMode: false,
-        platformFee: 10,
-        emailNotifications: true,
+        platformFee: 0,
+        emailNotifications: false,
         autoApproveTutors: false
     });
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const response = await adminService.getPlatformSettings();
+                setPlatformConfig(response.data);
+                setProfile({
+                    name: user?.name || "",
+                    email: user?.email || ""
+                });
+            } catch (error) {
+                toast.error("Failed to load platform settings");
+            } finally {
+                setPageLoading(false);
+            }
+        };
+        loadSettings();
+    }, [user]);
 
     const handleUpdateProfile = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        // Simple mock since userService is generic
         setTimeout(() => {
-            toast.success("Admin profile updated successfully");
+            toast.success("Admin profile update simulated successfully");
             setLoading(false);
         }, 800);
     };
 
-    const handleUpdatePlatform = () => {
+    const handleUpdatePlatform = async () => {
         setLoading(true);
-        setTimeout(() => {
-            toast.success("Platform configurations saved");
+        try {
+            await adminService.updatePlatformSettings(platformConfig);
+            toast.success("Platform configurations saved to database");
+        } catch (error) {
+            toast.error("Failed to save settings");
+        } finally {
             setLoading(false);
-        }, 800);
+        }
     };
+
+    if (pageLoading) {
+        return (
+            <div className="p-8 flex items-center justify-center min-h-[50vh]">
+                <Loader2 className="animate-spin text-primary h-8 w-8" />
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 max-w-4xl mx-auto space-y-10 pb-20">
@@ -173,26 +207,6 @@ export default function AdminSettingsPage() {
                 </div>
             </section>
 
-            {/* Security Section */}
-            <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-                    <div className="p-2 bg-slate-900 text-white rounded-lg">
-                        <Lock size={20} />
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-900">Security & Authentication</h2>
-                </div>
-                <div className="p-8">
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <p className="text-sm text-slate-600">Update your account password regularly to keep your admin access secure.</p>
-                        </div>
-                        <Button variant="outline" className="gap-2 border-slate-200">
-                            Change Password
-                            <ShieldCheck size={16} />
-                        </Button>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 }

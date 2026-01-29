@@ -29,5 +29,15 @@ export const adminService = {
     getStats: async () => {
         const response = await apiClient.get('/admin/stats');
         return response.data;
+    },
+
+    getPlatformSettings: async () => {
+        const response = await apiClient.get('/admin/settings');
+        return response.data;
+    },
+
+    updatePlatformSettings: async (data: any) => {
+        const response = await apiClient.patch('/admin/settings', data);
+        return response.data;
     }
 };

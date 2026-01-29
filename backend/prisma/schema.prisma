@@ -153,3 +153,12 @@ model Review {
   comment    String?
   createdAt  DateTime @default(now())
 }
+
+model PlatformSettings {
+  id                  Int      @id @default(1)
+  maintenanceMode     Boolean  @default(false)
+  platformFee         Float    @default(10.0)
+  emailNotifications  Boolean  @default(true)
+  autoApproveTutors   Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+}

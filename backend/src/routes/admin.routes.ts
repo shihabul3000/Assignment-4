@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { adminController } from '../controllers/admin.controller';
+import { adminSettingsController } from '../controllers/admin-settings.controller';
 import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
@@ -20,5 +21,9 @@ router.post('/categories', adminController.createCategory);
 
 // Stats & Reporting
 router.get('/stats', adminController.getStats);
+
+// Platform Settings
+router.get('/settings', adminSettingsController.getSettings);
+router.patch('/settings', adminSettingsController.updateSettings);
 
 export default router;

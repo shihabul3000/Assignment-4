@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, BarChart, LogOut, Settings } from "lucide-react";
+import { Home, Users, BarChart, LogOut, Settings, Calendar, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/Button";
 const sidebarItems = [
     { icon: Home, label: "Overview", href: "/admin" },
     { icon: Users, label: "Users", href: "/admin/users" },
+    { icon: Calendar, label: "Bookings", href: "/admin/bookings" },
+    { icon: Tag, label: "Categories", href: "/admin/categories" },
     { icon: BarChart, label: "Reports", href: "/admin/reports" },
     { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
