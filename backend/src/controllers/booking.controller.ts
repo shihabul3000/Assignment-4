@@ -199,8 +199,8 @@ export const bookingController = {
                 throw new ValidationError('Invalid booking ID');
             }
 
-            if (!status || !['CONFIRMED', 'CANCELLED'].includes(status)) {
-                throw new ValidationError('Status must be CONFIRMED or CANCELLED');
+            if (!status || !['CONFIRMED', 'CANCELLED', 'COMPLETED'].includes(status)) {
+                throw new ValidationError('Status must be CONFIRMED, CANCELLED, or COMPLETED');
             }
 
             // Find the booking
@@ -224,11 +224,23 @@ export const bookingController = {
                 if (!isTutor) {
                     throw new AuthorizationError('Only the assigned tutor can confirm this booking');
                 }
+                if (booking.status !== 'PENDING') {
+                    throw new ConflictError('Only pending bookings can be confirmed');
+                }
+            } else if (status === 'COMPLETED') {
+                if (!isTutor) {
+                    throw new AuthorizationError('Only the assigned tutor can mark this booking as completed');
+                }
+                if (booking.status !== 'CONFIRMED') {
+                    throw new ConflictError('Only confirmed bookings can be marked as completed');
+                }
             }
 
-            // Only pending bookings can be updated
-            if (booking.status !== 'PENDING') {
-                throw new ConflictError('Only pending bookings can be accepted or declined');
+            // For CANCELLED, only pending can be cancelled? 
+            // Actually, confirmed bookings might be cancellable too depending on policy, 
+            // but the original logic only allowed pending. Let's stick to the narrowest fix.
+            if (status === 'CANCELLED' && booking.status !== 'PENDING' && booking.status !== 'CONFIRMED') {
+                throw new ConflictError('This booking cannot be cancelled in its current state');
             }
 
             // Update the booking status

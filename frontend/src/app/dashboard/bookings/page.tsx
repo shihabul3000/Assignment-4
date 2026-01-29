@@ -10,10 +10,13 @@ import { formatCurrency } from "@/lib/utils";
 import { BookingDetailsModal } from "@/features/bookings/components/BookingDetailsModal";
 import toast from "react-hot-toast";
 
+import { ReviewModal } from "@/features/bookings/components/ReviewModal";
+
 export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null);
     const [cancellingId, setCancellingId] = useState<string | null>(null);
 
     const fetchBookings = async () => {
@@ -91,22 +94,37 @@ export default function BookingsPage() {
                                 <div className="flex flex-col items-end gap-3 justify-center">
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
                                         ${booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                                            booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}
+                                            booking.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
+                                                booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}
                                     `}>
                                         {booking.status}
                                     </span>
 
                                     <div className="flex gap-2 w-full md:w-auto">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex-1"
-                                            onClick={() => handleCancel(booking.id)}
-                                            disabled={booking.status !== 'PENDING' || cancellingId === booking.id}
-                                        >
-                                            {cancellingId === booking.id ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
-                                            Cancel
-                                        </Button>
+                                        {booking.status === 'PENDING' && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1"
+                                                onClick={() => handleCancel(booking.id)}
+                                                disabled={cancellingId === booking.id}
+                                            >
+                                                {cancellingId === booking.id ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
+                                                Cancel
+                                            </Button>
+                                        )}
+
+                                        {booking.status === 'COMPLETED' && (
+                                            <Button
+                                                variant="default"
+                                                size="sm"
+                                                className="flex-1 bg-primary hover:bg-primary/90"
+                                                onClick={() => setReviewingBooking(booking)}
+                                            >
+                                                Leave Review
+                                            </Button>
+                                        )}
+
                                         <Button
                                             variant="secondary"
                                             size="sm"
@@ -129,6 +147,19 @@ export default function BookingsPage() {
                     onClose={() => setSelectedBooking(null)}
                 />
             )}
+
+            {reviewingBooking && (
+                <ReviewModal
+                    bookingId={reviewingBooking.id}
+                    tutorName={reviewingBooking.tutor?.name || "Tutor"}
+                    onClose={() => setReviewingBooking(null)}
+                    onSuccess={() => {
+                        setReviewingBooking(null);
+                        fetchBookings();
+                    }}
+                />
+            )}
         </div>
     );
 }
+

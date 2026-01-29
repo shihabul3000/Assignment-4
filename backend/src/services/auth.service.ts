@@ -88,6 +88,11 @@ export const authService = {
             throw new AuthenticationError('Invalid email or password');
         }
 
+        // Check user status
+        if (user.status === 'BANNED') {
+            throw new AuthenticationError('Your account has been banned. Please contact support.');
+        }
+
         // Check password
         // Check password
         const account = user.accounts.find((a: any) => a.providerId === 'credential');

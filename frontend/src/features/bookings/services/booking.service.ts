@@ -32,7 +32,7 @@ export const bookingService = {
         }
     },
 
-    async updateBookingStatus(bookingId: string, status: 'CONFIRMED' | 'CANCELLED'): Promise<{ success: boolean; data?: Booking; message?: string }> {
+    async updateBookingStatus(bookingId: string, status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'): Promise<{ success: boolean; data?: Booking; message?: string }> {
         try {
             console.log(`Updating booking ${bookingId} to status ${status}`);
             const response = await apiClient.patch(`/bookings/${bookingId}/status`, { status });

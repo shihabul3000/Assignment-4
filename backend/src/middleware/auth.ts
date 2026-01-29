@@ -32,6 +32,10 @@ export const requireAuth = async (req: AuthRequest, res: Response, next: NextFun
             throw new AuthenticationError('User not found');
         }
 
+        if (user.status === 'BANNED') {
+            throw new AuthenticationError('Your account has been banned. Please contact support.');
+        }
+
         req.user = user;
         req.token = decoded;
         next();
