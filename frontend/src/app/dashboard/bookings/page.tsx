@@ -79,8 +79,10 @@ export default function BookingsPage() {
                                                 {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({booking.duration} hrs)
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <DollarSign size={16} />
-                                                <span className="font-medium text-slate-900">{booking.paymentMethod}</span> ({booking.paymentStatus})
+                                                <span className="font-bold text-slate-900">
+                                                    {(booking.tutor?.hourlyRate || 0) * booking.duration} BDT
+                                                </span>
+                                                <span className="text-xs text-slate-400">{booking.paymentMethod}</span>
                                             </div>
                                         </div>
                                     </div>

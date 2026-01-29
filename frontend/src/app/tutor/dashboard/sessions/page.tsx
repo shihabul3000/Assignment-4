@@ -80,12 +80,14 @@ export default function TutorSessionsPage() {
 
                         <div className="flex flex-col items-end gap-3 justify-center">
                             <div className="text-right">
-                                <span className="block font-bold text-slate-900">${session.tutor?.hourlyRate || 0}</span>
+                                <span className="block font-bold text-slate-900 text-lg">
+                                    {(session.tutor?.hourlyRate || 0) * session.duration} BDT
+                                </span>
                                 <span className={`text-xs font-bold uppercase tracking-wide ${session.status === 'CONFIRMED' ? 'text-green-600' :
-                                        session.status === 'CANCELLED' ? 'text-red-600' :
-                                            'text-yellow-600'
+                                    session.status === 'CANCELLED' ? 'text-red-600' :
+                                        'text-yellow-600'
                                     }`}>
-                                    {session.status} (COD)
+                                    {session.status} COD
                                 </span>
                             </div>
 

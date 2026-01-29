@@ -83,10 +83,10 @@ export const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalPro
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-700">
-                                    <div className="p-2 bg-slate-100 rounded-lg text-slate-500"><DollarSign size={18} /></div>
+                                    <div className="p-2 bg-slate-100 rounded-lg text-slate-500"><FileText size={18} /></div>
                                     <div>
                                         <p className="text-xs text-slate-400 leading-none mb-1">Total (COD)</p>
-                                        <p className="font-medium">${(booking.tutor?.hourlyRate || 0) * booking.duration}</p>
+                                        <p className="font-medium">{(booking.tutor?.hourlyRate || 0) * booking.duration} BDT</p>
                                     </div>
                                 </div>
                             </div>

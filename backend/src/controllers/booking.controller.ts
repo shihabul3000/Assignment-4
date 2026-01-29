@@ -57,13 +57,30 @@ export const bookingController = {
                 },
                 include: {
                     student: { select: { id: true, name: true, email: true } },
-                    tutor: { select: { id: true, name: true, email: true } },
+                    tutor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            tutorProfile: { select: { hourlyRate: true } }
+                        }
+                    },
                 },
             });
 
+            // Flatten hourlyRate
+            const tutorInfo = booking.tutor as any;
+            const hourlyRate = tutorInfo?.tutorProfile?.hourlyRate || 0;
+            const { tutorProfile: tp, ...tutorBase } = tutorInfo || {};
+
+            const flattenedBooking = {
+                ...booking,
+                tutor: tutorInfo ? { ...tutorBase, hourlyRate } : null
+            };
+
             res.status(201).json({
                 success: true,
-                data: { booking },
+                data: { booking: flattenedBooking },
                 message: 'Booking created successfully',
             });
         } catch (error) {
@@ -88,14 +105,31 @@ export const bookingController = {
                 where,
                 include: {
                     student: { select: { id: true, name: true, email: true } },
-                    tutor: { select: { id: true, name: true, email: true } },
+                    tutor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            tutorProfile: { select: { hourlyRate: true } }
+                        }
+                    },
                 },
                 orderBy: { dateTime: 'desc' },
             });
 
+            // Flatten hourlyRate for frontend compatibility
+            const flattenedBookings = bookings.map((b: any) => {
+                const hourlyRate = b.tutor?.tutorProfile?.hourlyRate || 0;
+                const { tutorProfile, ...tutorData } = b.tutor || {};
+                return {
+                    ...b,
+                    tutor: b.tutor ? { ...tutorData, hourlyRate } : null
+                };
+            });
+
             res.json({
                 success: true,
-                data: { bookings },
+                data: { bookings: flattenedBookings },
             });
         } catch (error) {
             next(error);
@@ -115,7 +149,14 @@ export const bookingController = {
                 where: { id },
                 include: {
                     student: { select: { id: true, name: true, email: true } },
-                    tutor: { select: { id: true, name: true, email: true } },
+                    tutor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            tutorProfile: { select: { hourlyRate: true } }
+                        }
+                    },
                     reviews: true,
                 },
             });
@@ -129,9 +170,19 @@ export const bookingController = {
                 throw new AuthorizationError('Access denied');
             }
 
+            // Flatten hourlyRate
+            const tutorInfo = booking.tutor as any;
+            const hourlyRate = tutorInfo?.tutorProfile?.hourlyRate || 0;
+            const { tutorProfile: tp, ...tutorBase } = tutorInfo || {};
+
+            const flattenedBooking = {
+                ...booking,
+                tutor: tutorInfo ? { ...tutorBase, hourlyRate } : null
+            };
+
             res.json({
                 success: true,
-                data: { booking },
+                data: { booking: flattenedBooking },
             });
         } catch (error) {
             next(error);
@@ -186,13 +237,30 @@ export const bookingController = {
                 data: { status },
                 include: {
                     student: { select: { id: true, name: true, email: true } },
-                    tutor: { select: { id: true, name: true, email: true } },
+                    tutor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            tutorProfile: { select: { hourlyRate: true } }
+                        }
+                    },
                 },
             });
 
+            // Flatten hourlyRate
+            const tutorInfo = updatedBooking.tutor as any;
+            const hourlyRate = tutorInfo?.tutorProfile?.hourlyRate || 0;
+            const { tutorProfile: tp, ...tutorBase } = tutorInfo || {};
+
+            const flattenedBooking = {
+                ...updatedBooking,
+                tutor: tutorInfo ? { ...tutorBase, hourlyRate } : null
+            };
+
             res.json({
                 success: true,
-                data: { booking: updatedBooking },
+                data: { booking: flattenedBooking },
                 message: `Booking ${status === 'CONFIRMED' ? 'accepted' : 'cancelled'} successfully`,
             });
         } catch (error) {
