@@ -7,19 +7,40 @@ import { Loader2, Calendar, Clock, MapPin, DollarSign, ExternalLink } from "luci
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
+import { BookingDetailsModal } from "@/features/bookings/components/BookingDetailsModal";
+import toast from "react-hot-toast";
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+    const fetchBookings = async () => {
+        setLoading(true);
+        const data = await bookingService.getMyBookings();
+        setBookings(data);
+        setLoading(false);
+    };
 
     useEffect(() => {
-        const fetch = async () => {
-            const data = await bookingService.getMyBookings();
-            setBookings(data);
-            setLoading(false);
-        };
-        fetch();
+        fetchBookings();
     }, []);
+
+    const handleCancel = async (bookingId: string) => {
+        if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+        setCancellingId(bookingId);
+        const result = await bookingService.updateBookingStatus(bookingId, 'CANCELLED');
+
+        if (result.success) {
+            toast.success("Booking cancelled successfully");
+            fetchBookings();
+        } else {
+            toast.error(result.message || "Failed to cancel booking");
+        }
+        setCancellingId(null);
+    };
 
     if (loading) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
@@ -74,8 +95,24 @@ export default function BookingsPage() {
                                     </span>
 
                                     <div className="flex gap-2 w-full md:w-auto">
-                                        <Button variant="outline" size="sm" className="flex-1">Cancel</Button>
-                                        <Button variant="secondary" size="sm" className="flex-1">Details</Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => handleCancel(booking.id)}
+                                            disabled={booking.status !== 'PENDING' || cancellingId === booking.id}
+                                        >
+                                            {cancellingId === booking.id ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => setSelectedBooking(booking)}
+                                        >
+                                            Details
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -83,6 +120,13 @@ export default function BookingsPage() {
                     ))
                 )}
             </div>
+
+            {selectedBooking && (
+                <BookingDetailsModal
+                    booking={selectedBooking}
+                    onClose={() => setSelectedBooking(null)}
+                />
+            )}
         </div>
     );
 }

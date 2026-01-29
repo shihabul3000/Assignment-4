@@ -20,6 +20,7 @@ export interface Booking {
         name: string;
         email: string;
     };
+    notes?: string;
 }
 
 export interface CreateBookingPayload {

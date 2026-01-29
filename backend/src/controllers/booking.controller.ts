@@ -161,12 +161,18 @@ export const bookingController = {
                 throw new NotFoundError('Booking');
             }
 
-            // Only the tutor can accept/decline bookings
-            // booking.tutorId references the User ID (not TutorProfile ID)
-            const isAssignedTutor = booking.tutorId === user.id;
+            // Check authorization
+            const isStudent = booking.studentId === user.id;
+            const isTutor = booking.tutorId === user.id;
 
-            if (!isAssignedTutor) {
-                throw new AuthorizationError('Only the assigned tutor can update booking status');
+            if (status === 'CANCELLED') {
+                if (!isStudent && !isTutor) {
+                    throw new AuthorizationError('Only the student or tutor can cancel this booking');
+                }
+            } else if (status === 'CONFIRMED') {
+                if (!isTutor) {
+                    throw new AuthorizationError('Only the assigned tutor can confirm this booking');
+                }
             }
 
             // Only pending bookings can be updated
@@ -187,7 +193,7 @@ export const bookingController = {
             res.json({
                 success: true,
                 data: { booking: updatedBooking },
-                message: `Booking ${status === 'CONFIRMED' ? 'accepted' : 'declined'} successfully`,
+                message: `Booking ${status === 'CONFIRMED' ? 'accepted' : 'cancelled'} successfully`,
             });
         } catch (error) {
             next(error);
