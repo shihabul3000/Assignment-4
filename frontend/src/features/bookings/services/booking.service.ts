@@ -15,17 +15,15 @@ export const bookingService = {
 
     async createBooking(payload: CreateBookingPayload): Promise<{ success: boolean; data?: Booking; message?: string }> {
         try {
-            // Ensure strict COD
-            const safePayload = { ...payload, paymentMethod: 'COD', paymentStatus: 'PENDING' };
-            console.log("Creating booking with payload:", safePayload);
+            console.log("Creating booking with payload:", payload);
 
             // Real API Call
-            // const response = await apiClient.post('/bookings', safePayload);
-            // return { success: true, data: response.data.data };
+            const response = await apiClient.post('/bookings', payload);
+            return { success: true, data: response.data.data };
 
-            // Mock Success
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return { success: true };
+            // Mock Success - REMOVED
+            // await new Promise(resolve => setTimeout(resolve, 1000));
+            // return { success: true };
         } catch (error: any) {
             return {
                 success: false,

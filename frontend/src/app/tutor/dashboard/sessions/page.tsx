@@ -69,11 +69,11 @@ export default function TutorSessionsPage() {
                                 <User size={20} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-900">{session.student?.name || session.student?.user?.name || 'Unknown Student'}</h3>
-                                <p className="text-sm text-primary font-medium">Session with Tutor</p>
+                                <h3 className="font-bold text-slate-900">{session.student?.name || 'Unknown Student'}</h3>
+                                <p className="text-sm text-primary font-medium">Session with Student</p>
                                 <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
-                                    <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(session.startTime || session.dateTime || Date.now()).toLocaleDateString()}</span>
-                                    <span className="flex items-center gap-1"><Clock size={14} /> {new Date(session.startTime || session.dateTime || Date.now()).toLocaleTimeString()} - {new Date(session.endTime || Date.now()).toLocaleTimeString()}</span>
+                                    <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(session.dateTime).toLocaleDateString()}</span>
+                                    <span className="flex items-center gap-1"><Clock size={14} /> {new Date(session.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({session.duration} hrs)</span>
                                 </div>
                             </div>
                         </div>
@@ -81,34 +81,33 @@ export default function TutorSessionsPage() {
                         <div className="flex flex-col items-end gap-3 justify-center">
                             <div className="text-right">
                                 <span className="block font-bold text-slate-900">${session.tutor?.hourlyRate || 0}</span>
-                                <span className={`text-xs font-bold uppercase tracking-wide ${
-                                    session.status === 'CONFIRMED' ? 'text-green-600' : 
-                                    session.status === 'CANCELLED' ? 'text-red-600' : 
-                                    'text-yellow-600'
-                                }`}>
+                                <span className={`text-xs font-bold uppercase tracking-wide ${session.status === 'CONFIRMED' ? 'text-green-600' :
+                                        session.status === 'CANCELLED' ? 'text-red-600' :
+                                            'text-yellow-600'
+                                    }`}>
                                     {session.status} (COD)
                                 </span>
                             </div>
 
                             {session.status === 'PENDING' && (
                                 <div className="flex gap-2">
-                                    <Button 
-                                        size="sm" 
-                                        variant="outline" 
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                         onClick={() => handleDecline(session.id)}
                                         disabled={updating === session.id}
                                     >
-                                        {updating === session.id ? <Loader2 size={16} className="mr-1 animate-spin" /> : <X size={16} className="mr-1" />} 
+                                        {updating === session.id ? <Loader2 size={16} className="mr-1 animate-spin" /> : <X size={16} className="mr-1" />}
                                         Decline
                                     </Button>
-                                    <Button 
-                                        size="sm" 
+                                    <Button
+                                        size="sm"
                                         className="bg-green-600 hover:bg-green-700"
                                         onClick={() => handleAccept(session.id)}
                                         disabled={updating === session.id}
                                     >
-                                        {updating === session.id ? <Loader2 size={16} className="mr-1 animate-spin" /> : <Check size={16} className="mr-1" />} 
+                                        {updating === session.id ? <Loader2 size={16} className="mr-1 animate-spin" /> : <Check size={16} className="mr-1" />}
                                         Accept
                                     </Button>
                                 </div>

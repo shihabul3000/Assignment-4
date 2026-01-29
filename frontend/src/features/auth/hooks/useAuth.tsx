@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         } catch (error: unknown) {
             const msg = error instanceof Error && 'response' in error
-                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message)
+                ? ((error as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message)
                 : "Login failed";
             toast.error(msg || "Login failed");
             throw error;
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error: unknown) {
             const msg = error instanceof Error && 'response' in error
-                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message)
+                ? ((error as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message)
                 : "Registration failed";
             toast.error(msg || "Registration failed");
             throw error;

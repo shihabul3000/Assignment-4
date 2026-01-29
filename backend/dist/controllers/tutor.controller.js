@@ -1,41 +1,35 @@
-import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { ValidationError, NotFoundError, AuthorizationError } from '../utils/errors';
-import { parsePagination } from '../utils/helpers';
-import { AuthRequest } from '../middleware/auth';
-
-const prisma = new PrismaClient();
-
-export const tutorController = {
-    async getTutors(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tutorController = void 0;
+const client_1 = require("@prisma/client");
+const errors_1 = require("../utils/errors");
+const helpers_1 = require("../utils/helpers");
+const prisma = new client_1.PrismaClient();
+exports.tutorController = {
+    async getTutors(req, res, next) {
         try {
             const { subject, rating, price } = req.query;
-            const page = req.query.page as string;
-            const limit = req.query.limit as string;
-            const { page: pageNum, limit: limitNum } = parsePagination(page, limit);
-
+            const page = req.query.page;
+            const limit = req.query.limit;
+            const { page: pageNum, limit: limitNum } = (0, helpers_1.parsePagination)(page, limit);
             // Validate pagination parameters
             if (isNaN(pageNum) || pageNum < 1) {
-                throw new ValidationError('Invalid page number');
+                throw new errors_1.ValidationError('Invalid page number');
             }
             if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-                throw new ValidationError('Limit must be between 1 and 100');
+                throw new errors_1.ValidationError('Limit must be between 1 and 100');
             }
-
-            let where: any = { role: 'TUTOR' };
-
+            let where = { role: 'TUTOR' };
             if (subject) {
-                where.tutorProfile = { subjects: { has: subject as string } };
+                where.tutorProfile = { subjects: { has: subject } };
             }
-
             if (price) {
-                const priceNum = parseFloat(price as string);
+                const priceNum = parseFloat(price);
                 if (isNaN(priceNum) || priceNum < 0) {
-                    throw new ValidationError('Price must be a positive number');
+                    throw new errors_1.ValidationError('Price must be a positive number');
                 }
                 where.tutorProfile = { ...where.tutorProfile, hourlyRate: { lte: priceNum } };
             }
-
             const tutors = await prisma.user.findMany({
                 where,
                 include: {
@@ -47,42 +41,36 @@ export const tutorController = {
                     }
                 }
             });
-
-            const tutorsWithRating = tutors.map((tutor: any) => {
-                const reviews = tutor.tutorBookings.flatMap((b: any) => b.reviews);
-                const avgRating = reviews.length > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length : 0;
+            const tutorsWithRating = tutors.map((tutor) => {
+                const reviews = tutor.tutorBookings.flatMap((b) => b.reviews);
+                const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
                 return { ...tutor, averageRating: avgRating };
             });
-
             let filtered = tutorsWithRating;
             if (rating) {
-                const ratingNum = parseFloat(rating as string);
+                const ratingNum = parseFloat(rating);
                 if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 5) {
-                    throw new ValidationError('Rating must be between 0 and 5');
+                    throw new errors_1.ValidationError('Rating must be between 0 and 5');
                 }
-                filtered = filtered.filter((t: any) => t.averageRating >= ratingNum);
+                filtered = filtered.filter((t) => t.averageRating >= ratingNum);
             }
-
             const start = (pageNum - 1) * limitNum;
             const paginated = filtered.slice(start, start + limitNum);
-
             res.json({
                 success: true,
                 data: { tutors: paginated, total: filtered.length },
             });
-        } catch (error) {
+        }
+        catch (error) {
             next(error);
         }
     },
-
-    async getTutorById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    async getTutorById(req, res, next) {
         try {
             const { id } = req.params;
-
             if (!id || typeof id !== 'string' || id.trim() === '') {
-                throw new ValidationError('Invalid tutor ID');
+                throw new errors_1.ValidationError('Invalid tutor ID');
             }
-
             // Look up by TutorProfile.id instead of User.id
             const tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { id },
@@ -91,11 +79,9 @@ export const tutorController = {
                     availabilities: true,
                 }
             });
-
             if (!tutorProfile) {
-                throw new NotFoundError('Tutor');
+                throw new errors_1.NotFoundError('Tutor');
             }
-
             // Get tutor's bookings and reviews separately
             const tutorBookings = await prisma.booking.findMany({
                 where: { tutorId: tutorProfile.userId },
@@ -107,48 +93,40 @@ export const tutorController = {
                     }
                 }
             });
-
-            const reviews = tutorBookings.flatMap((b: any) => b.reviews.map((r: any) => ({ ...r, bookingId: b.id })));
-            const avgRating = reviews.length > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length : 0;
-
+            const reviews = tutorBookings.flatMap((b) => b.reviews.map((r) => ({ ...r, bookingId: b.id })));
+            const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
             // Construct response in the same format as before for frontend compatibility
             const tutorData = {
-                ...tutorProfile,
                 ...tutorProfile.user,
                 tutorProfile,
                 tutorBookings,
                 reviews,
                 averageRating: avgRating
             };
-
             res.json({
                 success: true,
                 data: tutorData,
             });
-        } catch (error) {
+        }
+        catch (error) {
             next(error);
         }
     },
-
-    async updateProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    async updateProfile(req, res, next) {
         try {
             const { bio, subjects, hourlyRate } = req.body;
             const user = req.user;
-
             // Validation
             if (subjects && !Array.isArray(subjects)) {
-                throw new ValidationError('Subjects must be an array');
+                throw new errors_1.ValidationError('Subjects must be an array');
             }
-
             if (hourlyRate !== undefined && (typeof hourlyRate !== 'number' || hourlyRate < 0)) {
-                throw new ValidationError('Hourly rate must be a positive number');
+                throw new errors_1.ValidationError('Hourly rate must be a positive number');
             }
-
             // Check if tutor profile exists
             let tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { userId: user.id },
             });
-
             if (tutorProfile) {
                 // Update existing profile
                 tutorProfile = await prisma.tutorProfile.update({
@@ -159,7 +137,8 @@ export const tutorController = {
                         hourlyRate,
                     },
                 });
-            } else {
+            }
+            else {
                 // Create new profile
                 tutorProfile = await prisma.tutorProfile.create({
                     data: {
@@ -170,83 +149,70 @@ export const tutorController = {
                     },
                 });
             }
-
             res.json({
                 success: true,
                 data: { tutorProfile },
                 message: 'Tutor profile updated successfully',
             });
-        } catch (error) {
+        }
+        catch (error) {
             next(error);
         }
     },
-
-    async getProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    async getProfile(req, res, next) {
         try {
             const user = req.user;
-
             const tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { userId: user.id },
             });
-
             if (!tutorProfile) {
-                throw new NotFoundError('Tutor profile');
+                throw new errors_1.NotFoundError('Tutor profile');
             }
-
             res.json({
                 success: true,
                 data: { tutorProfile },
             });
-        } catch (error) {
+        }
+        catch (error) {
             next(error);
         }
     },
-
-    async updateAvailability(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    async updateAvailability(req, res, next) {
         try {
             const user = req.user;
             const { availabilities } = req.body;
-
             if (!availabilities || !Array.isArray(availabilities)) {
-                throw new ValidationError('Availabilities must be an array');
+                throw new errors_1.ValidationError('Availabilities must be an array');
             }
-
             // Delete existing availabilities
             await prisma.availability.deleteMany({
                 where: { tutorProfile: { userId: user.id } },
             });
-
             // Get or create tutor profile
             let tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { userId: user.id },
             });
-
             if (!tutorProfile) {
                 tutorProfile = await prisma.tutorProfile.create({
                     data: { userId: user.id, hourlyRate: 0 },
                 });
             }
-
             // Create new availabilities
-            const newAvailabilities = await Promise.all(
-                availabilities.map((a: any) =>
-                    prisma.availability.create({
-                        data: {
-                            tutorProfileId: tutorProfile.id,
-                            dayOfWeek: a.dayOfWeek,
-                            startTime: a.startTime,
-                            endTime: a.endTime,
-                        },
-                    })
-                )
-            );
-
+            const newAvailabilities = await Promise.all(availabilities.map((a) => prisma.availability.create({
+                data: {
+                    tutorProfileId: tutorProfile.id,
+                    dayOfWeek: a.dayOfWeek,
+                    startTime: a.startTime,
+                    endTime: a.endTime,
+                },
+            })));
             res.json({
                 success: true,
                 data: { availabilities: newAvailabilities },
                 message: 'Availability updated successfully',
             });
-        } catch (error) {
+        }
+        catch (error) {
             next(error);
         }
     },

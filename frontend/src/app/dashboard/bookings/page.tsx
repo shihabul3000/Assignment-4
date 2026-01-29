@@ -47,15 +47,15 @@ export default function BookingsPage() {
                             <div className="flex flex-col md:flex-row justify-between gap-6">
                                 <div className="flex gap-4">
                                     <div className="h-16 w-16 rounded-xl bg-slate-100 flex flex-col items-center justify-center text-slate-700 border border-slate-200">
-                                        <span className="text-xs font-bold uppercase">{new Date(booking.startTime).toLocaleString('default', { month: 'short' })}</span>
-                                        <span className="text-xl font-bold">{new Date(booking.startTime).getDate()}</span>
+                                        <span className="text-xs font-bold uppercase">{new Date(booking.dateTime).toLocaleString('default', { month: 'short' })}</span>
+                                        <span className="text-xl font-bold">{new Date(booking.dateTime).getDate()}</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg text-slate-900">{booking.tutor?.user.name}</h3>
+                                        <h3 className="font-bold text-lg text-slate-900">{booking.tutor?.name}</h3>
                                         <div className="flex flex-col gap-1 mt-1 text-sm text-slate-500">
                                             <div className="flex items-center gap-2">
                                                 <Clock size={16} />
-                                                {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({booking.duration} hrs)
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <DollarSign size={16} />

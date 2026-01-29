@@ -59,12 +59,11 @@ export default function CreateBookingPage() {
         try {
             // Construct ISO dates
             const startDateTime = new Date(`${data.date}T${data.time}`);
-            const endDateTime = new Date(startDateTime.getTime() + data.duration * 60 * 60 * 1000);
 
             const result = await bookingService.createBooking({
-                tutorId: tutor.id,
-                startTime: startDateTime.toISOString(),
-                endTime: endDateTime.toISOString(),
+                tutorId: tutor.userId, // Backend expects User ID, not Profile ID
+                dateTime: startDateTime.toISOString(),
+                duration: data.duration,
                 paymentMethod: 'COD',
                 paymentStatus: 'PENDING'
             });
