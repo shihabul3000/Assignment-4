@@ -24,5 +24,10 @@ export const adminService = {
     createCategory: async (data: { name: string, description?: string }) => {
         const response = await apiClient.post('/admin/categories', data);
         return response.data;
+    },
+
+    getStats: async () => {
+        const response = await apiClient.get('/admin/stats');
+        return response.data;
     }
 };

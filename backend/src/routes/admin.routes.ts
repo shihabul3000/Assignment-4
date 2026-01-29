@@ -18,4 +18,7 @@ router.get('/bookings', adminController.getBookings);
 router.get('/categories', adminController.getCategories);
 router.post('/categories', adminController.createCategory);
 
+// Stats & Reporting
+router.get('/stats', adminController.getStats);
+
 export default router;
