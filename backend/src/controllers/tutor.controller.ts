@@ -137,7 +137,7 @@ export const tutorController = {
 
     async updateProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { bio, subjects, hourlyRate } = req.body;
+            const { name, bio, subjects, hourlyRate } = req.body;
             const user = req.user;
 
             // Validation
@@ -176,9 +176,26 @@ export const tutorController = {
                 });
             }
 
+            // Update user name if provided
+            if (name) {
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { name }
+                });
+            }
+
             res.json({
                 success: true,
-                data: { tutorProfile },
+                data: {
+                    tutorProfile: {
+                        ...tutorProfile,
+                        user: {
+                            id: user.id,
+                            name: name || user.name,
+                            email: user.email
+                        }
+                    }
+                },
                 message: 'Tutor profile updated successfully',
             });
         } catch (error) {
@@ -192,6 +209,16 @@ export const tutorController = {
 
             const tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { userId: user.id },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            role: true,
+                        }
+                    }
+                }
             });
 
             if (!tutorProfile) {
