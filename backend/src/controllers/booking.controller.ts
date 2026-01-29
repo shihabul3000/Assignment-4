@@ -267,4 +267,52 @@ export const bookingController = {
             next(error);
         }
     },
+    async getStudentStats(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user = req.user;
+            if (user.role !== 'STUDENT') {
+                throw new AuthorizationError('Only students can access student stats');
+            }
+
+            const bookings = await prisma.booking.findMany({
+                where: { studentId: user.id },
+                include: {
+                    tutor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        }
+                    },
+                },
+                orderBy: { dateTime: 'asc' },
+            });
+
+            const now = new Date();
+            const totalSessions = bookings.length;
+            const upcomingBookings = bookings.filter(b => new Date(b.dateTime) > now && b.status !== 'CANCELLED');
+            const upcomingSessionsCount = upcomingBookings.length;
+
+            const hoursLearned = bookings
+                .filter(b => b.status === 'COMPLETED')
+                .reduce((sum, b) => sum + b.duration, 0);
+
+            // Get next 3 upcoming sessions
+            const nextSessions = upcomingBookings.slice(0, 3);
+
+            res.json({
+                success: true,
+                data: {
+                    stats: {
+                        totalSessions,
+                        upcomingSessionsCount,
+                        hoursLearned,
+                    },
+                    upcomingSessions: nextSessions,
+                },
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
 };

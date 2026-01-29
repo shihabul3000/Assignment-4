@@ -7,6 +7,7 @@ import tutorRoutes from './routes/tutor.routes';
 import bookingRoutes from './routes/booking.routes';
 import categoryRoutes from './routes/category.routes';
 import adminRoutes from './routes/admin.routes';
+import userRoutes from './routes/user.routes';
 
 // Import middleware
 import { errorHandler, notFoundHandler, requestLogger } from './middleware/errorHandler';
@@ -30,7 +31,8 @@ app.get('/', (req: Request, res: Response) => {
             tutors: '/api/tutors',
             bookings: '/api/bookings',
             categories: '/api/categories',
-            admin: '/api/admin'
+            admin: '/api/admin',
+            users: '/api/users'
         },
         timestamp: new Date().toISOString()
     });
@@ -47,6 +49,7 @@ app.use('/api/tutors', tutorRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 
 // Error handlers
 app.use(notFoundHandler);

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { tutorService } from "@/features/tutors/services/tutor.service";
 import { TutorProfile } from "@/features/tutors/types";
 import { Button } from "@/components/ui/Button";
-import { Star, Clock, DollarSign, BookOpen, ChevronLeft } from "lucide-react";
+import { Star, Clock, Banknote, BookOpen, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import toast from "react-hot-toast";
@@ -83,7 +83,7 @@ export default function TutorProfilePage() {
                                     <Star size={14} fill="currentColor" /> {tutor.averageRating} ({tutor.totalReviews} reviews)
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <DollarSign size={14} /> ${tutor.hourlyRate}/hr
+                                    <Banknote size={14} /> {tutor.hourlyRate} BDT/hr
                                 </div>
                             </div>
 
@@ -99,7 +99,7 @@ export default function TutorProfilePage() {
                         <div className="w-full md:w-auto p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm md:min-w-[300px]">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-slate-500">Hourly Rate</span>
-                                <span className="text-2xl font-bold text-slate-900">${tutor.hourlyRate}</span>
+                                <span className="text-2xl font-bold text-slate-900">{tutor.hourlyRate} BDT</span>
                             </div>
                             <Button size="lg" className="w-full" onClick={handleBookNow}>
                                 Book Session (COD)

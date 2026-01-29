@@ -2,7 +2,7 @@
 
 import { Booking } from "../types";
 import { Button } from "@/components/ui/Button";
-import { X, Calendar, Clock, User, Mail, DollarSign, FileText, CheckCircle, AlertCircle, XCircle } from "lucide-react";
+import { X, Calendar, Clock, User, Mail, FileText, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 
 // Helper for native date formatting
 const formatDate = (dateStr: string) => {

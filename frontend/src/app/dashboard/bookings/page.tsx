@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { bookingService } from "@/features/bookings/services/booking.service";
 import { Booking } from "@/features/bookings/types";
-import { Loader2, Calendar, Clock, MapPin, DollarSign, ExternalLink } from "lucide-react";
+import { Loader2, Calendar, Clock, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";

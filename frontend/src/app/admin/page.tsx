@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, BookOpen, UserCheck, DollarSign } from "lucide-react";
+import { Users, BookOpen, UserCheck, Banknote } from "lucide-react";
 
 export default function AdminDashboardOverview() {
     return (
@@ -26,8 +26,8 @@ export default function AdminDashboardOverview() {
                     <p className="text-3xl font-bold text-slate-900 mt-2">8,500</p>
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-medium text-slate-500 flex items-center gap-2"><DollarSign size={16} /> Revenue (Est)</h3>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">$120k</p>
+                    <h3 className="text-sm font-medium text-slate-500 flex items-center gap-2"><Banknote size={16} /> Revenue (Est)</h3>
+                    <p className="text-3xl font-bold text-slate-900 mt-2">120k BDT</p>
                 </div>
             </div>
 

@@ -11,6 +11,7 @@ router.get('/:id', tutorController.getTutorById);
 // Protected tutor routes
 router.put('/profile', requireAuth, requireRole('TUTOR'), tutorController.updateProfile);
 router.get('/profile/me', requireAuth, requireRole('TUTOR'), tutorController.getProfile);
+router.get('/dashboard/stats', requireAuth, requireRole('TUTOR'), tutorController.getDashboardStats);
 router.put('/availability', requireAuth, requireRole('TUTOR'), tutorController.updateAvailability);
 
 export default router;

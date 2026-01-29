@@ -150,7 +150,7 @@ export default function CreateBookingPage() {
                     <div className="bg-slate-50 p-4 rounded-lg space-y-3">
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-600">Hourly Rate</span>
-                            <span className="font-medium">${tutor.hourlyRate}</span>
+                            <span className="font-medium">{tutor.hourlyRate} BDT</span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-slate-600">Total Duration</span>
@@ -158,7 +158,7 @@ export default function CreateBookingPage() {
                         </div>
                         <div className="border-t border-slate-200 pt-3 flex justify-between items-center">
                             <span className="font-bold text-slate-900">Total to Pay</span>
-                            <span className="text-2xl font-bold text-primary">${totalCost}</span>
+                            <span className="text-2xl font-bold text-primary">{totalCost} BDT</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-3 rounded border border-green-100 mt-2">

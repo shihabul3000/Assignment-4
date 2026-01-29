@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { User, Mail, BookOpen, DollarSign } from "lucide-react";
+import { User, Mail, BookOpen, Banknote } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { tutorService } from "@/features/tutor/services/tutor.service";
@@ -79,9 +79,9 @@ export default function TutorProfileEditPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700">Hourly Rate ($)</label>
+                            <label className="text-sm font-medium text-slate-700">Hourly Rate (BDT)</label>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                 <Input
                                     type="number"
                                     className="pl-10"

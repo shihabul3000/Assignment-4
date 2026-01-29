@@ -149,7 +149,7 @@ export default function Home() {
                   Specializing in Calculus and Algebra with over 5 years of teaching experience.
                 </p>
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
-                  <span className="font-bold text-primary">$20/hr</span>
+                  <span className="font-bold text-primary">20 BDT/hr</span>
                   <Link href="/tutors/1">
                     <Button variant="secondary" size="sm">View Profile</Button>
                   </Link>

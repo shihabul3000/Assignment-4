@@ -255,4 +255,67 @@ export const tutorController = {
             next(error);
         }
     },
+    async getDashboardStats(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user = req.user;
+
+            const tutorProfile = await prisma.tutorProfile.findUnique({
+                where: { userId: user.id },
+            });
+
+            if (!tutorProfile) {
+                throw new NotFoundError('Tutor profile');
+            }
+
+            const bookings = await prisma.booking.findMany({
+                where: { tutorId: user.id },
+                include: {
+                    student: { select: { id: true, name: true, email: true } },
+                },
+                orderBy: { dateTime: 'desc' },
+            });
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const totalStudents = new Set(bookings.map((b) => b.studentId)).size;
+            const pendingRequests = bookings.filter((b) => b.status === 'PENDING').length;
+
+            // Calculate earnings for confirmed/completed bookings in the current month
+            const monthlyEarnings = bookings
+                .filter((b) => {
+                    const bookingDate = new Date(b.dateTime);
+                    return (
+                        (b.status === 'CONFIRMED' || b.status === 'COMPLETED') &&
+                        bookingDate.getMonth() === currentMonth &&
+                        bookingDate.getFullYear() === currentYear
+                    );
+                })
+                .reduce((sum, b) => sum + b.duration * tutorProfile.hourlyRate, 0);
+
+            const hoursTaught = bookings
+                .filter((b) => b.status === 'COMPLETED' || b.status === 'CONFIRMED') // Including confirmed as "planned/taught" hours
+                .reduce((sum, b) => sum + b.duration, 0);
+
+            const recentRequests = bookings
+                .filter((b) => b.status === 'PENDING')
+                .slice(0, 5);
+
+            res.json({
+                success: true,
+                data: {
+                    stats: {
+                        totalStudents,
+                        pendingRequests,
+                        monthlyEarnings,
+                        hoursTaught,
+                    },
+                    recentRequests,
+                },
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
 };

@@ -28,8 +28,8 @@ export default function TutorCard({ tutor }: TutorCardProps) {
                         </div>
                     </div>
                     <div className="text-right">
-                        <span className="block font-bold text-lg text-slate-900">${tutor.hourlyRate}</span>
-                        <span className="text-xs text-slate-500">/hour</span>
+                        <span className="block font-bold text-lg text-slate-900">{tutor.hourlyRate} BDT</span>
+                        <span className="text-xs text-slate-500">/hr</span>
                     </div>
                 </div>
 

@@ -8,6 +8,7 @@ const router = Router();
 // Booking routes
 router.post('/', requireAuth, bookingController.create);
 router.get('/', requireAuth, bookingController.getAll);
+router.get('/stats', requireAuth, bookingController.getStudentStats);
 router.get('/:id', requireAuth, bookingController.getById);
 router.patch('/:id/status', requireAuth, bookingController.updateStatus);
 
