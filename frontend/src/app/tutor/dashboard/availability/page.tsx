@@ -34,7 +34,7 @@ export default function AvailabilityPage() {
             setLoading(true);
             try {
                 const profile = await tutorService.getOwnProfile();
-                if (profile?.availabilities) {
+                if (profile?.availabilities && Array.isArray(profile.availabilities)) {
                     setAvailabilities(profile.availabilities);
                 }
             } catch (error) {
@@ -47,20 +47,20 @@ export default function AvailabilityPage() {
     }, []);
 
     const toggleDay = (day: string) => {
-        const exists = availabilities.some(a => a.dayOfWeek === day);
+        const exists = availabilities.some(a => a.dayOfWeek.toUpperCase() === day.toUpperCase());
         if (exists) {
-            setAvailabilities(prev => prev.filter(a => a.dayOfWeek !== day));
+            setAvailabilities(prev => prev.filter(a => a.dayOfWeek.toUpperCase() !== day.toUpperCase()));
         } else {
             setAvailabilities(prev => [
                 ...prev,
-                { dayOfWeek: day, startTime: "09:00 AM", endTime: "05:00 PM" }
+                { dayOfWeek: day.toUpperCase(), startTime: "09:00 AM", endTime: "05:00 PM" }
             ]);
         }
     };
 
     const updateTime = (day: string, type: 'start' | 'end', value: string) => {
         setAvailabilities(prev => prev.map(a =>
-            a.dayOfWeek === day
+            a.dayOfWeek.toUpperCase() === day.toUpperCase()
                 ? { ...a, [type === 'start' ? 'startTime' : 'endTime']: value }
                 : a
         ));
@@ -105,7 +105,7 @@ export default function AvailabilityPage() {
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-100">
                 {DAYS.map(day => {
-                    const availability = availabilities.find(a => a.dayOfWeek === day);
+                    const availability = availabilities.find(a => a.dayOfWeek.toUpperCase() === day.toUpperCase());
                     const isActive = !!availability;
 
                     return (

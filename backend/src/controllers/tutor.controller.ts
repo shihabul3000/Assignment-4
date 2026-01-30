@@ -39,7 +39,11 @@ export const tutorController = {
             const tutors = await prisma.user.findMany({
                 where,
                 include: {
-                    tutorProfile: true,
+                    tutorProfile: {
+                        include: {
+                            availabilities: true
+                        }
+                    },
                     tutorBookings: {
                         include: {
                             reviews: true
@@ -210,6 +214,7 @@ export const tutorController = {
             const tutorProfile = await prisma.tutorProfile.findUnique({
                 where: { userId: user.id },
                 include: {
+                    availabilities: true,
                     user: {
                         select: {
                             id: true,
@@ -243,39 +248,36 @@ export const tutorController = {
                 throw new ValidationError('Availabilities must be an array');
             }
 
-            // Delete existing availabilities
-            await prisma.availability.deleteMany({
-                where: { tutorProfile: { userId: user.id } },
+            // 1. Ensure profile exists
+            let profile = await prisma.tutorProfile.findUnique({
+                where: { userId: user.id }
             });
 
-            // Get or create tutor profile
-            let tutorProfile = await prisma.tutorProfile.findUnique({
-                where: { userId: user.id },
-            });
-
-            if (!tutorProfile) {
-                tutorProfile = await prisma.tutorProfile.create({
-                    data: { userId: user.id, hourlyRate: 0 },
+            if (!profile) {
+                profile = await prisma.tutorProfile.create({
+                    data: { userId: user.id, hourlyRate: 0 }
                 });
             }
 
-            // Create new availabilities
-            const newAvailabilities = await Promise.all(
-                availabilities.map((a: any) =>
-                    prisma.availability.create({
-                        data: {
-                            tutorProfileId: tutorProfile.id,
-                            dayOfWeek: a.dayOfWeek,
-                            startTime: a.startTime,
-                            endTime: a.endTime,
-                        },
-                    })
-                )
-            );
+            // 2. Perform Clear-and-Sync
+            await prisma.$transaction([
+                // Clear existing
+                prisma.availability.deleteMany({
+                    where: { tutorProfileId: profile.id }
+                }),
+                // Create new
+                prisma.availability.createMany({
+                    data: availabilities.map((a: any) => ({
+                        tutorProfileId: profile!.id,
+                        dayOfWeek: a.dayOfWeek.toUpperCase(),
+                        startTime: a.startTime,
+                        endTime: a.endTime,
+                    }))
+                })
+            ]);
 
             res.json({
                 success: true,
-                data: { availabilities: newAvailabilities },
                 message: 'Availability updated successfully',
             });
         } catch (error) {

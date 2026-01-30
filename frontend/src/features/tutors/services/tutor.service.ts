@@ -2,27 +2,37 @@ import { apiClient } from '@/lib/apiClient';
 import { TutorProfile, TutorSearchParams } from '../types';
 
 // Transform backend User data to frontend TutorProfile format
-function transformTutorData(user: any): TutorProfile {
-    const tutorProfile = user.tutorProfile || {};
-    const reviews = user.tutorBookings?.flatMap((b: any) => b.reviews || []) || [];
-    const averageRating = user.averageRating || (reviews.length > 0
+function transformTutorData(input: any): TutorProfile {
+    // 1. Identify the profile and user objects
+    const profile = input.tutorProfile ||
+        (input.userId ? input : null) ||
+        input;
+
+    const user = input.user ||
+        (input.tutorProfile ? input : null) ||
+        {};
+
+    const rawBookings = input.tutorBookings || user.tutorBookings || profile.tutorBookings || [];
+    const reviews = rawBookings.flatMap((b: any) => b.reviews || []);
+
+    const averageRating = input.averageRating || (reviews.length > 0
         ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
         : 0);
 
     return {
-        id: user.id, // This should now reliably be User.id due to backend fix
-        userId: user.userId || user.id,
-        bio: tutorProfile.bio || '',
-        subjects: tutorProfile.subjects || [],
-        hourlyRate: tutorProfile.hourlyRate || 0,
+        id: profile.id || user.id || input.id,
+        userId: profile.userId || user.id || input.userId,
+        bio: profile.bio || '',
+        subjects: profile.subjects || [],
+        hourlyRate: profile.hourlyRate || 0,
         user: {
-            id: user.id,
+            id: user.id || profile.userId,
             name: user.name || 'Unknown Tutor',
             image: user.image || '',
         },
         averageRating: averageRating,
         totalReviews: reviews.length,
-        availabilities: tutorProfile.availabilities || [],
+        availabilities: profile.availabilities || input.availabilities || [],
     };
 }
 
