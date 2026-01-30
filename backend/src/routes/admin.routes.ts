@@ -11,6 +11,7 @@ router.use(requireAuth, requireRole('ADMIN'));
 // User management
 router.get('/users', adminController.getUsers);
 router.patch('/users/:id', adminController.updateUser);
+router.delete('/users/:id', adminController.deleteUser);
 
 // Booking management
 router.get('/bookings', adminController.getBookings);

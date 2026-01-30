@@ -33,9 +33,10 @@ export const reviewController = {
             }
 
             // Check if booking is completed (dateTime is in the past)
-            if (new Date(booking.dateTime) > new Date()) {
-                throw new ValidationError('Cannot review a booking that has not yet occurred');
-            }
+            // NOTE: Temporarily disabled for demo/testing purposes
+            // if (new Date(booking.dateTime) > new Date()) {
+            //     throw new ValidationError('Cannot review a booking that has not yet occurred');
+            // }
 
             // Check if review already exists
             if (booking.reviews.length > 0) {

@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { adminService } from "@/features/admin/services/admin.service";
 import { Button } from "@/components/ui/Button";
-import { User, MoreVertical, Loader2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { User, MoreVertical, Loader2, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionId, setActionId] = useState<string | null>(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
     const fetchUsers = async () => {
         try {
@@ -35,6 +36,20 @@ export default function AdminUsersPage() {
             fetchUsers();
         } catch (error) {
             toast.error("Failed to update user status");
+        } finally {
+            setActionId(null);
+        }
+    };
+
+    const handleDeleteUser = async (userId: string) => {
+        setActionId(userId);
+        try {
+            await adminService.deleteUser(userId);
+            toast.success("User deleted successfully");
+            setDeleteConfirmId(null);
+            fetchUsers();
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to delete user");
         } finally {
             setActionId(null);
         }
@@ -98,22 +113,34 @@ export default function AdminUsersPage() {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     {u.role !== 'ADMIN' && (
-                                        <Button
-                                            variant={u.status === 'ACTIVE' ? "outline" : "secondary"}
-                                            size="sm"
-                                            className="h-8 text-[11px] font-bold"
-                                            onClick={() => toggleUserStatus(u.id, u.status)}
-                                            disabled={actionId === u.id}
-                                        >
-                                            {actionId === u.id ? (
-                                                <Loader2 size={12} className="animate-spin mr-1" />
-                                            ) : u.status === 'ACTIVE' ? (
-                                                <ShieldAlert size={12} className="mr-1" />
-                                            ) : (
-                                                <ShieldCheck size={12} className="mr-1" />
-                                            )}
-                                            {u.status === 'ACTIVE' ? 'Ban' : 'Unban'}
-                                        </Button>
+                                        <div className="flex items-center gap-2 justify-end">
+                                            <Button
+                                                variant={u.status === 'ACTIVE' ? "outline" : "secondary"}
+                                                size="sm"
+                                                className="h-8 text-[11px] font-bold"
+                                                onClick={() => toggleUserStatus(u.id, u.status)}
+                                                disabled={actionId === u.id}
+                                            >
+                                                {actionId === u.id ? (
+                                                    <Loader2 size={12} className="animate-spin mr-1" />
+                                                ) : u.status === 'ACTIVE' ? (
+                                                    <ShieldAlert size={12} className="mr-1" />
+                                                ) : (
+                                                    <ShieldCheck size={12} className="mr-1" />
+                                                )}
+                                                {u.status === 'ACTIVE' ? 'Ban' : 'Unban'}
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-[11px] font-bold text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                onClick={() => setDeleteConfirmId(u.id)}
+                                                disabled={actionId === u.id}
+                                            >
+                                                <Trash2 size={12} className="mr-1" />
+                                                Delete
+                                            </Button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>
@@ -121,6 +148,39 @@ export default function AdminUsersPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">Delete User</h3>
+                        <p className="text-slate-600 mb-6">
+                            Are you sure you want to delete this user? This action cannot be undone.
+                            All associated data (bookings, reviews, tutor profile) will also be deleted.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteConfirmId(null)}
+                                disabled={actionId === deleteConfirmId}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                className="bg-red-600 text-white hover:bg-red-700"
+                                onClick={() => handleDeleteUser(deleteConfirmId)}
+                                disabled={actionId === deleteConfirmId}
+                            >
+                                {actionId === deleteConfirmId ? (
+                                    <Loader2 size={16} className="animate-spin mr-2" />
+                                ) : null}
+                                Delete
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -11,6 +11,11 @@ export const adminService = {
         return response.data;
     },
 
+    deleteUser: async (id: string) => {
+        const response = await apiClient.delete(`/admin/users/${id}`);
+        return response.data;
+    },
+
     getBookings: async (params?: { status?: string }) => {
         const response = await apiClient.get('/admin/bookings', { params });
         return response.data;

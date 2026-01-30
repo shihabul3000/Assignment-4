@@ -151,6 +151,65 @@ export const adminController = {
         }
     },
 
+    async deleteUser(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id } = req.params;
+
+            if (!id || typeof id !== 'string' || id.trim() === '') {
+                throw new ValidationError('Invalid user ID');
+            }
+
+            // Check if user exists
+            const user = await prisma.user.findUnique({
+                where: { id },
+            });
+
+            if (!user) {
+                throw new NotFoundError('User not found');
+            }
+
+            // Prevent deletion of admin users
+            if (user.role === 'ADMIN') {
+                throw new ValidationError('Cannot delete admin users');
+            }
+
+            // Delete related data first to avoid foreign key constraint errors
+            // 1. Delete reviews where user is the reviewer
+            await prisma.review.deleteMany({
+                where: { reviewerId: id },
+            });
+
+            // 2. Delete bookings where user is student or tutor
+            // Note: Reviews related to these bookings will be cascaded due to schema config
+            await prisma.booking.deleteMany({
+                where: {
+                    OR: [
+                        { studentId: id },
+                        { tutorId: id },
+                    ],
+                },
+            });
+
+            // 3. Delete tutor profile if exists (cascades to availabilities)
+            await prisma.tutorProfile.deleteMany({
+                where: { userId: id },
+            });
+
+            // 4. Finally delete the user
+            // Sessions and accounts will be cascaded due to schema config
+            await prisma.user.delete({
+                where: { id },
+            });
+
+            res.json({
+                success: true,
+                message: 'User deleted successfully',
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+
     async getStats(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const now = new Date();
