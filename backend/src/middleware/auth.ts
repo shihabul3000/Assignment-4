@@ -14,14 +14,14 @@ export const requireAuth = async (req: AuthRequest, res: Response, next: NextFun
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new AuthenticationError('Authentication required');
+            return next(new AuthenticationError('Authentication required'));
         }
 
         const token = authHeader.split(' ')[1];
         const decoded = verifyToken(token);
 
         if (!decoded) {
-            throw new AuthenticationError('Invalid or expired token');
+            return next(new AuthenticationError('Invalid or expired token'));
         }
 
         const user = await prisma.user.findUnique({
@@ -29,19 +29,18 @@ export const requireAuth = async (req: AuthRequest, res: Response, next: NextFun
         });
 
         if (!user) {
-            throw new AuthenticationError('User not found');
+            return next(new AuthenticationError('User not found'));
         }
 
         if (user.status === 'BANNED') {
-            throw new AuthenticationError('Your account has been banned. Please contact support.');
+            return next(new AuthenticationError('Your account has been banned. Please contact support.'));
         }
 
         req.user = user;
         req.token = decoded;
         next();
     } catch (error) {
-        if (error instanceof AuthenticationError) throw error;
-        throw new AuthenticationError('Invalid session');
+        next(error instanceof AuthenticationError ? error : new AuthenticationError('Invalid session'));
     }
 };
 
@@ -50,17 +49,16 @@ export const requireRole = (...roles: string[]) => {
         try {
             const user = req.user;
             if (!user) {
-                throw new AuthenticationError('Authentication required');
+                return next(new AuthenticationError('Authentication required'));
             }
 
             const userRole = user.role || '';
             if (!roles.includes(userRole as string)) {
-                throw new AuthorizationError(`Access denied. Required role: ${roles.join(' or ')}`);
+                return next(new AuthorizationError(`Access denied. Required role: ${roles.join(' or ')}`));
             }
             next();
         } catch (error) {
-            if (error instanceof AuthenticationError || error instanceof AuthorizationError) throw error;
-            throw new AuthenticationError('Invalid session');
+            next(error instanceof AuthenticationError || error instanceof AuthorizationError ? error : new AuthenticationError('Invalid session'));
         }
     };
 };

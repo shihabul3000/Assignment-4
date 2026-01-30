@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Default to localhost:5000 if not set, matching backend default
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -13,11 +14,16 @@ export const apiClient = axios.create({
 // Request Interceptor: Attach Token
 apiClient.interceptors.request.use(
     (config) => {
-        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') || Cookies.get('token');
             if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
+                // Ensure headers object exists
+                if (!config.headers) {
+                    config.headers = {} as any;
+                }
+
+                // Set Authorization header - Using bracket notation for better compatibility
+                config.headers['Authorization'] = `Bearer ${token}`;
             }
         }
         return config;
