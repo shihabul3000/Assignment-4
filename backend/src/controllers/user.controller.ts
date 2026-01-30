@@ -88,5 +88,23 @@ export const userController = {
         } catch (error) {
             next(error);
         }
+    },
+
+    async deleteAccount(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user.id;
+
+            // Delete the user (Prisma should handle cascade deletions if configured)
+            await prisma.user.delete({
+                where: { id: userId },
+            });
+
+            res.json({
+                success: true,
+                message: 'Account deleted successfully'
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 };
