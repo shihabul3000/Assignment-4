@@ -4,16 +4,19 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { User, Mail, BookOpen, Banknote, Loader2 } from "lucide-react";
+import { User, Mail, BookOpen, Banknote, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { tutorService } from "@/features/tutor/services/tutor.service";
+import { tutorService } from "@/features/tutors/services/tutor.service";
+import { userService } from "@/features/auth/services/user.service";
 
 export default function TutorProfileEditPage() {
-    const { user, updateUser } = useAuth();
+    const { user, updateUser, logout } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     const [formData, setFormData] = useState({
         name: user?.name || "",
@@ -26,16 +29,18 @@ export default function TutorProfileEditPage() {
         const fetchProfile = async () => {
             try {
                 const response = await tutorService.getMyProfile();
-                const profile = response.data.tutorProfile;
-                setFormData({
-                    name: profile.user?.name || user?.name || "",
-                    bio: profile.bio || "",
-                    hourlyRate: profile.hourlyRate || 0,
-                    subjects: Array.isArray(profile.subjects) ? profile.subjects.join(", ") : ""
-                });
+                const profile = response.data?.tutorProfile;
+
+                if (profile) {
+                    setFormData({
+                        name: profile.user?.name || user?.name || "",
+                        bio: profile.bio || "",
+                        hourlyRate: profile.hourlyRate || 0,
+                        subjects: Array.isArray(profile.subjects) ? profile.subjects.join(", ") : ""
+                    });
+                }
             } catch (error) {
                 console.error("Failed to fetch tutor profile", error);
-                // If it's a 404, we just keep the defaults (empty bio etc)
             } finally {
                 setLoading(false);
             }
@@ -56,6 +61,25 @@ export default function TutorProfileEditPage() {
             toast.error("Failed to update profile");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!confirmDelete) {
+            setConfirmDelete(true);
+            toast.error("Please click again to confirm permanent deletion");
+            return;
+        }
+
+        setIsDeleting(true);
+        try {
+            await userService.deleteAccount();
+            toast.success("Your account has been permanently deleted");
+            logout();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to delete account");
+            setIsDeleting(false);
+            setConfirmDelete(false);
         }
     };
 
@@ -148,6 +172,30 @@ export default function TutorProfileEditPage() {
                     <Button onClick={handleSaveChanges} disabled={isSaving}>
                         {isSaving && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
                         Save Changes
+                    </Button>
+                </div>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="mt-8 bg-red-50 rounded-xl border border-red-100 p-8 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-red-600">
+                            <AlertCircle size={20} />
+                            <h2 className="text-lg font-bold">Danger Zone</h2>
+                        </div>
+                        <p className="text-sm text-red-700 max-w-md">
+                            Permanently delete your account, your tutor profile, and all associated data. This action cannot be undone.
+                        </p>
+                    </div>
+                    <Button
+                        onClick={handleDeleteAccount}
+                        disabled={isDeleting}
+                        variant={confirmDelete ? "destructive" : "outline"}
+                        className={confirmDelete ? "" : "border-red-200 text-red-600 hover:bg-red-100"}
+                    >
+                        {isDeleting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                        {confirmDelete ? "Confirm Deletion" : "Delete My Account"}
                     </Button>
                 </div>
             </div>

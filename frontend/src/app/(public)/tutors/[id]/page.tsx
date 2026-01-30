@@ -139,18 +139,34 @@ export default function TutorProfilePage() {
                     </div>
 
                     <div className="space-y-6">
-                        {/* Quick Stats or Availability could go here */}
+                        {/* Availability */}
                         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 className="font-bold text-slate-900 mb-4">Availability</h3>
+                            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-primary" />
+                                Availability
+                            </h3>
                             <div className="space-y-3">
-                                <div className="flex items-center gap-3 text-sm text-slate-600">
-                                    <Clock size={16} className="text-primary" />
-                                    <span>Mon - Fri: 9:00 AM - 5:00 PM</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-slate-600">
-                                    <Clock size={16} className="text-primary" />
-                                    <span>Weekends: Available on request</span>
-                                </div>
+                                {tutor.availabilities && tutor.availabilities.length > 0 ? (
+                                    [...tutor.availabilities]
+                                        .sort((a, b) => {
+                                            const order = ['SATURDAY', 'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+                                            return order.indexOf(a.dayOfWeek) - order.indexOf(b.dayOfWeek);
+                                        })
+                                        .map((avail, i) => (
+                                            <div key={i} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm py-2 border-b border-slate-50 last:border-0">
+                                                <span className="text-slate-600 font-medium whitespace-nowrap">
+                                                    {avail.dayOfWeek.charAt(0) + avail.dayOfWeek.slice(1).toLowerCase()}
+                                                </span>
+                                                <span className="text-slate-500 whitespace-nowrap">
+                                                    {avail.startTime} - {avail.endTime}
+                                                </span>
+                                            </div>
+                                        ))
+                                ) : (
+                                    <div className="text-sm text-slate-500 italic">
+                                        No specific hours set. Contact tutor for details.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

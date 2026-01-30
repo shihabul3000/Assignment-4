@@ -1,3 +1,10 @@
+export interface Availability {
+    id?: string;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+}
+
 export interface TutorProfile {
     id: string;
     userId: string;
@@ -11,6 +18,7 @@ export interface TutorProfile {
     };
     averageRating: number;
     totalReviews: number;
+    availabilities?: Availability[];
 }
 
 export interface TutorSearchParams {

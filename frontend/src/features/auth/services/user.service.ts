@@ -18,5 +18,10 @@ export const userService = {
     async changePassword(data: ChangePasswordData) {
         const response = await apiClient.patch('/users/change-password', data);
         return response.data;
+    },
+
+    async deleteAccount() {
+        const response = await apiClient.delete('/users');
+        return response.data;
     }
 };

@@ -22,6 +22,7 @@ function transformTutorData(user: any): TutorProfile {
         },
         averageRating: averageRating,
         totalReviews: reviews.length,
+        availabilities: tutorProfile.availabilities || [],
     };
 }
 
@@ -45,6 +46,44 @@ export const tutorService = {
             return transformTutorData(userData);
         } catch (error) {
             console.error(`Failed to fetch tutor with id ${id}`, error);
+            return null;
+        }
+    },
+
+    async updateAvailability(availabilities: any[]): Promise<boolean> {
+        try {
+            await apiClient.put('/tutors/availability', { availabilities });
+            return true;
+        } catch (error) {
+            console.error("Failed to update availability", error);
+            return false;
+        }
+    },
+
+    async getMyProfile(): Promise<any> {
+        const response = await apiClient.get('/tutors/profile/me');
+        return response.data;
+    },
+
+    async updateProfile(formData: any): Promise<any> {
+        const payload = {
+            ...formData,
+            subjects: typeof formData.subjects === 'string'
+                ? formData.subjects.split(',').map((s: string) => s.trim()).filter(Boolean)
+                : formData.subjects
+        };
+        const response = await apiClient.put('/tutors/profile', payload);
+        return response.data;
+    },
+
+    async getOwnProfile(): Promise<TutorProfile | null> {
+        try {
+            const response = await apiClient.get('/tutors/profile/me');
+            const data = response.data.data?.tutorProfile;
+            if (!data) return null;
+            return transformTutorData(data);
+        } catch (error) {
+            console.error("Failed to fetch own profile", error);
             return null;
         }
     }
