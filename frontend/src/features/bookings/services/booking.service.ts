@@ -1,11 +1,11 @@
 import { apiClient } from '@/lib/apiClient';
-import { Booking, CreateBookingPayload } from '../types';
+import { Booking, CreateBookingPayload, BookingFilterParams } from '../types';
 
 export const bookingService = {
     // Get all bookings for the current user (Student or Tutor)
-    async getMyBookings(): Promise<Booking[]> {
+    async getMyBookings(filters?: BookingFilterParams): Promise<Booking[]> {
         try {
-            const response = await apiClient.get('/bookings');
+            const response = await apiClient.get('/bookings', { params: filters });
             return response.data.data.bookings;
         } catch (error) {
             console.error("Failed to fetch bookings", error);

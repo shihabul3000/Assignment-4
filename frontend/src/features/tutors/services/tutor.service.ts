@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/apiClient';
-import { TutorProfile, TutorSearchParams } from '../types';
+import { TutorProfile, TutorSearchParams, PaginatedTutorsResponse } from '../types';
 
 // Transform backend User data to frontend TutorProfile format
 function transformTutorData(input: any): TutorProfile {
@@ -33,17 +33,40 @@ function transformTutorData(input: any): TutorProfile {
         averageRating: averageRating,
         totalReviews: reviews.length,
         availabilities: profile.availabilities || input.availabilities || [],
+        reviews: reviews,
     };
 }
 
 export const tutorService = {
-    async getAll(params?: TutorSearchParams): Promise<TutorProfile[]> {
+    async getAll(params?: TutorSearchParams): Promise<PaginatedTutorsResponse> {
         try {
             const response = await apiClient.get('/tutors', { params });
             const tutorsData = response.data.data?.tutors || [];
-            return tutorsData.map(transformTutorData);
+            const pagination = response.data.data?.pagination || {
+                total: tutorsData.length,
+                page: 1,
+                limit: 10,
+                totalPages: 1
+            };
+            return {
+                tutors: tutorsData.map(transformTutorData),
+                pagination
+            };
         } catch (error) {
             console.error("Failed to fetch tutors", error);
+            return {
+                tutors: [],
+                pagination: { total: 0, page: 1, limit: 10, totalPages: 0 }
+            };
+        }
+    },
+
+    async getCategories(): Promise<string[]> {
+        try {
+            const response = await apiClient.get('/categories');
+            return response.data.data?.categories?.map((cat: any) => cat.name) || [];
+        } catch (error) {
+            console.error("Failed to fetch categories", error);
             return [];
         }
     },

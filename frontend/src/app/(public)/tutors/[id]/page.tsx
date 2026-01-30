@@ -126,15 +126,51 @@ export default function TutorProfilePage() {
                             </p>
                         </section>
 
-                        {/* Reviews (Placeholder) */}
+                        {/* Reviews */}
                         <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                             <h2 className="text-xl font-bold font-heading mb-4 flex items-center gap-2">
                                 <Star className="h-5 w-5 text-primary" />
-                                Student Reviews
+                                Student Reviews ({tutor.totalReviews})
                             </h2>
-                            <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                                No reviews yet. Be the first to book!
-                            </div>
+                            {tutor.reviews && tutor.reviews.length > 0 ? (
+                                <div className="space-y-4">
+                                    {tutor.reviews.map((review) => (
+                                        <div key={review.id} className="border-b border-slate-100 last:border-0 pb-4 last:pb-0">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                                                        {review.reviewer?.name?.charAt(0) || 'S'}
+                                                    </div>
+                                                    <span className="font-medium text-slate-900">
+                                                        {review.reviewer?.name || 'Student'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-sm text-slate-400">
+                                                    {new Date(review.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1 mb-2">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <Star
+                                                        key={star}
+                                                        size={14}
+                                                        className={star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-200"}
+                                                    />
+                                                ))}
+                                            </div>
+                                            {review.comment && (
+                                                <p className="text-slate-600 text-sm leading-relaxed">
+                                                    {review.comment}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                    No reviews yet. Be the first to book!
+                                </div>
+                            )}
                         </section>
                     </div>
 

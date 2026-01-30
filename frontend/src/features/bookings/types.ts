@@ -31,3 +31,9 @@ export interface CreateBookingPayload {
     paymentMethod: 'COD';
     paymentStatus: 'PENDING';
 }
+
+export interface BookingFilterParams {
+    status?: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+    startDate?: string;
+    endDate?: string;
+}
