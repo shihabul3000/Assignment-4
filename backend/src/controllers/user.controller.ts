@@ -94,9 +94,50 @@ export const userController = {
         try {
             const userId = req.user.id;
 
-            // Delete the user (Prisma should handle cascade deletions if configured)
-            await prisma.user.delete({
-                where: { id: userId },
+            // Perform manual cleanup in a transaction to handle foreign key constraints logically
+            await prisma.$transaction(async (tx) => {
+                // 1. Delete reviews where user is the reviewer
+                await tx.review.deleteMany({
+                    where: { reviewerId: userId }
+                });
+
+                // 2. Delete reviews associated with bookings the user is involved in
+                await tx.review.deleteMany({
+                    where: {
+                        booking: {
+                            OR: [
+                                { studentId: userId },
+                                { tutorId: userId }
+                            ]
+                        }
+                    }
+                });
+
+                // 3. Delete bookings where user is either student or tutor
+                await tx.booking.deleteMany({
+                    where: {
+                        OR: [
+                            { studentId: userId },
+                            { tutorId: userId }
+                        ]
+                    }
+                });
+
+                // 4. Delete sessions and accounts (typically these already have cascade if set up via auth libraries)
+                await tx.session.deleteMany({ where: { userId } });
+                await tx.account.deleteMany({ where: { userId } });
+
+                // 5. Delete tutor profile and availabilities
+                const profile = await tx.tutorProfile.findUnique({ where: { userId } });
+                if (profile) {
+                    await tx.availability.deleteMany({ where: { tutorProfileId: profile.id } });
+                    await tx.tutorProfile.delete({ where: { id: profile.id } });
+                }
+
+                // 6. Finally delete the user
+                await tx.user.delete({
+                    where: { id: userId },
+                });
             });
 
             res.json({

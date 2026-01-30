@@ -6,6 +6,5 @@ const router = Router();
 
 router.patch('/profile', requireAuth, userController.updateProfile);
 router.patch('/change-password', requireAuth, userController.changePassword);
-router.delete('/', requireAuth, userController.deleteAccount);
 
 export default router;

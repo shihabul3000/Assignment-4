@@ -10,6 +10,8 @@ import adminRoutes from './routes/admin.routes';
 import userRoutes from './routes/user.routes';
 
 // Import middleware
+import { requireAuth } from './middleware/auth';
+import { userController } from './controllers/user.controller';
 import { errorHandler, notFoundHandler, requestLogger } from './middleware/errorHandler';
 
 const app = express();
@@ -49,6 +51,7 @@ app.use('/api/tutors', tutorRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin', adminRoutes);
+app.delete('/api/users', requireAuth, userController.deleteAccount);
 app.use('/api/users', userRoutes);
 
 // Error handlers
