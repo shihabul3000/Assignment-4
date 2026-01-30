@@ -1,4 +1,5 @@
 import TutorSidebar from "@/features/tutor/components/TutorSidebar";
+import { RoleGuard } from "@/features/auth/components/RoleGuard";
 
 export default function TutorLayout({
     children,
@@ -6,12 +7,14 @@ export default function TutorLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-slate-50">
-            <TutorSidebar />
+        <RoleGuard allowedRoles={['TUTOR']}>
+            <div className="min-h-screen bg-slate-50">
+                <TutorSidebar />
 
-            <main className="md:pl-64 min-h-screen transition-all">
-                {children}
-            </main>
-        </div>
+                <main className="md:pl-64 min-h-screen transition-all">
+                    {children}
+                </main>
+            </div>
+        </RoleGuard>
     );
 }

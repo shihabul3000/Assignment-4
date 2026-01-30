@@ -40,10 +40,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             const response = await authService.getMe();
-            setState({ user: response.data.user, isAuthenticated: true, isLoading: false });
+            if (response.success) {
+                const user = response.data.user;
+                setState({ user, isAuthenticated: true, isLoading: false });
+                // Ensure role cookie is set for middleware
+                Cookies.set('userRole', user.role, { expires: 7 });
+            }
         } catch {
             setState({ user: null, isAuthenticated: false, isLoading: false });
             Cookies.remove('token');
+            Cookies.remove('userRole');
             localStorage.removeItem('token');
         }
     };
@@ -56,7 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const response = await authService.login(credentials);
             const { user, token } = response.data;
-            Cookies.set('token', token);
+            Cookies.set('token', token, { expires: 7 });
+            Cookies.set('userRole', user.role, { expires: 7 });
             localStorage.setItem('token', token);
             setState({ user, isAuthenticated: true, isLoading: false });
             toast.success(`Welcome back, ${user.name}!`);
@@ -80,7 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await authService.register(credentials);
             const { user, token } = response.data;
 
-            Cookies.set('token', token);
+            Cookies.set('token', token, { expires: 7 });
+            Cookies.set('userRole', user.role, { expires: 7 });
             localStorage.setItem('token', token);
             setState({ user, isAuthenticated: true, isLoading: false });
             toast.success("Account created successfully!");
@@ -105,8 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = () => {
         authService.logout();
-        Cookies.remove('token'); // Clear cookie
-        // State clear handled in authService.logout() if needed or just here
+        Cookies.remove('token');
+        Cookies.remove('userRole');
         setState({ user: null, isAuthenticated: false, isLoading: false });
         toast.success("Logged out");
         router.push('/login');
