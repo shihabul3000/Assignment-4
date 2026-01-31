@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma';
 import { ValidationError, NotFoundError, AuthorizationError } from '../utils/errors';
 import { parsePagination } from '../utils/helpers';
 import { AuthRequest } from '../middleware/auth';
 
-const prisma = new PrismaClient();
+
 
 export const tutorController = {
     async getTutors(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

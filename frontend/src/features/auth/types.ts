@@ -6,6 +6,8 @@ export interface User {
     email: string;
     role: UserRole;
     image?: string;
+    status?: 'ACTIVE' | 'INACTIVE' | 'BANNED' | 'PENDING';
+    createdAt?: string;
 }
 
 export interface LoginResponse {

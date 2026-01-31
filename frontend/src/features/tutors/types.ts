@@ -17,6 +17,39 @@ export interface Review {
     createdAt: string;
 }
 
+// Raw backend data types for transformation
+export interface RawBooking {
+    reviews?: RawReview[];
+}
+
+export interface RawReview {
+    rating: number;
+}
+
+export interface RawTutorData {
+    id?: string;
+    userId?: string;
+    tutorProfile?: {
+        id?: string;
+        userId?: string;
+        bio?: string;
+        subjects?: string[];
+        hourlyRate?: number;
+        availabilities?: Availability[];
+    };
+    user?: {
+        id?: string;
+        name?: string;
+        image?: string;
+    };
+    bio?: string;
+    subjects?: string[];
+    hourlyRate?: number;
+    availabilities?: Availability[];
+    averageRating?: number;
+    tutorBookings?: RawBooking[];
+}
+
 export interface TutorProfile {
     id: string;
     userId: string;

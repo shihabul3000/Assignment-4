@@ -14,12 +14,17 @@ const sidebarItems = [
     { icon: User, label: "Profile", href: "/tutor/dashboard/profile" },
 ];
 
-export default function TutorSidebar() {
+interface TutorSidebarProps {
+    className?: string; // Allow overriding styles
+    onLinkClick?: () => void; // Allow closing menu on mobile
+}
+
+export default function TutorSidebar({ className, onLinkClick }: TutorSidebarProps) {
     const pathname = usePathname();
     const { logout } = useAuth();
 
     return (
-        <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col hidden md:flex fixed h-full">
+        <aside className={cn("w-64 bg-slate-900 text-white min-h-screen flex flex-col fixed h-full transition-transform", className)}>
             <div className="p-6 border-b border-slate-800">
                 <Link href="/" className="flex items-center gap-2">
                     <span className="text-xl font-bold font-heading">SkillBridge</span>
@@ -34,6 +39,7 @@ export default function TutorSidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={onLinkClick}
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
                                 isActive

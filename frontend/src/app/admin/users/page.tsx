@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { adminService } from "@/features/admin/services/admin.service";
 import { Button } from "@/components/ui/Button";
-import { User, MoreVertical, Loader2, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
+import { User, Loader2, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
+import { User as AuthUser } from "@/features/auth/types";
 import toast from "react-hot-toast";
 
 export default function AdminUsersPage() {
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<AuthUser[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [actionId, setActionId] = useState<string | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export default function AdminUsersPage() {
         try {
             const response = await adminService.getUsers();
             setUsers(response.data.users);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch users");
         } finally {
             setLoading(false);
@@ -34,7 +36,7 @@ export default function AdminUsersPage() {
             await adminService.updateUser(userId, { status: newStatus });
             toast.success(`User ${newStatus.toLowerCase()} successfully`);
             fetchUsers();
-        } catch (error) {
+        } catch {
             toast.error("Failed to update user status");
         } finally {
             setActionId(null);
@@ -48,8 +50,9 @@ export default function AdminUsersPage() {
             toast.success("User deleted successfully");
             setDeleteConfirmId(null);
             fetchUsers();
-        } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Failed to delete user");
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err?.response?.data?.message || "Failed to delete user");
         } finally {
             setActionId(null);
         }
@@ -109,7 +112,7 @@ export default function AdminUsersPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-xs">
-                                    {new Date(u.createdAt).toLocaleDateString()}
+                                    {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "N/A"}
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     {u.role !== 'ADMIN' && (
@@ -118,7 +121,7 @@ export default function AdminUsersPage() {
                                                 variant={u.status === 'ACTIVE' ? "outline" : "secondary"}
                                                 size="sm"
                                                 className="h-8 text-[11px] font-bold"
-                                                onClick={() => toggleUserStatus(u.id, u.status)}
+                                                onClick={() => toggleUserStatus(u.id, u.status || 'ACTIVE')}
                                                 disabled={actionId === u.id}
                                             >
                                                 {actionId === u.id ? (

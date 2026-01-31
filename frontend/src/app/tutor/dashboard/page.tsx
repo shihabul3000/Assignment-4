@@ -1,17 +1,25 @@
 "use client";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { Loader2, Calendar, Clock, Banknote, Users, Clock3, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Calendar, Banknote, Users, Clock3, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { bookingService } from "@/features/bookings/services/booking.service";
+import { Booking } from "@/features/bookings/types";
 import toast from "react-hot-toast";
+
+interface DashboardStats {
+    totalStudents: number;
+    pendingRequests: number;
+    monthlyEarnings: number;
+    hoursTaught: number;
+}
 
 export default function TutorDashboardOverview() {
     const { user } = useAuth();
-    const [stats, setStats] = useState<any>(null);
-    const [recentRequests, setRecentRequests] = useState<any[]>([]);
-    const [confirmedSessions, setConfirmedSessions] = useState<any[]>([]);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [recentRequests, setRecentRequests] = useState<Booking[]>([]);
+    const [confirmedSessions, setConfirmedSessions] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionId, setActionId] = useState<string | null>(null);
 
@@ -27,7 +35,7 @@ export default function TutorDashboardOverview() {
                 setRecentRequests(statsRes.data.data.recentRequests);
             }
 
-            setConfirmedSessions(bookingsRes.filter((b: any) => b.status === 'CONFIRMED'));
+            setConfirmedSessions(bookingsRes.filter((b: Booking) => b.status === 'CONFIRMED'));
         } catch (error) {
             console.error("Failed to fetch tutor dashboard data", error);
         } finally {
@@ -99,7 +107,7 @@ export default function TutorDashboardOverview() {
                                 No active sessions at the moment.
                             </div>
                         ) : (
-                            confirmedSessions.map((session: any) => (
+                            confirmedSessions.map((session: Booking) => (
                                 <div key={session.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                                     <div className="flex gap-3">
                                         <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-green-500">
@@ -142,7 +150,7 @@ export default function TutorDashboardOverview() {
                                 No new requests.
                             </div>
                         ) : (
-                            recentRequests.map((request: any) => (
+                            recentRequests.map((request: Booking) => (
                                 <div key={request.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                                     <div className="flex gap-3">
                                         <div className="h-10 w-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500">

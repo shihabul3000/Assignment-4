@@ -2,8 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../utils/helpers';
 import { ValidationError, AuthenticationError, ConflictError } from '../utils/errors';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma';
 
 export interface RegisterInput {
     email: string;

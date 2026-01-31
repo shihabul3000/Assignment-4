@@ -5,10 +5,8 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { adminService } from "@/features/admin/services/admin.service";
 import {
     User,
-    Lock,
     Globe,
     Bell,
-    ShieldCheck,
     Save,
     AlertTriangle,
     CreditCard,
@@ -45,7 +43,7 @@ export default function AdminSettingsPage() {
                     name: user?.name || "",
                     email: user?.email || ""
                 });
-            } catch (error) {
+            } catch {
                 toast.error("Failed to load platform settings");
             } finally {
                 setPageLoading(false);
@@ -69,7 +67,7 @@ export default function AdminSettingsPage() {
         try {
             await adminService.updatePlatformSettings(platformConfig);
             toast.success("Platform configurations saved to database");
-        } catch (error) {
+        } catch {
             toast.error("Failed to save settings");
         } finally {
             setLoading(false);

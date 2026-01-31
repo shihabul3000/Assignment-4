@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma';
 import { AuthenticationError, AuthorizationError } from '../utils/errors';
 import { verifyToken } from '../utils/helpers';
 
-const prisma = new PrismaClient();
+
 
 export interface AuthRequest extends Request {
     user?: any;

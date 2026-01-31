@@ -14,12 +14,17 @@ const sidebarItems = [
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
-export default function StudentSidebar() {
+interface StudentSidebarProps {
+    className?: string; // Allow overriding styles (e.g., removing 'hidden')
+    onLinkClick?: () => void; // Allow closing menu on mobile when a link is clicked
+}
+
+export default function StudentSidebar({ className, onLinkClick }: StudentSidebarProps) {
     const pathname = usePathname();
     const { logout } = useAuth();
 
     return (
-        <aside className="w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col hidden md:flex fixed h-full">
+        <aside className={cn("w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col fixed h-full transition-transform", className)}>
             <div className="p-6 border-b border-slate-200">
                 <Link href="/" className="flex items-center gap-2">
                     <span className="text-xl font-bold font-heading text-slate-900">SkillBridge</span>
@@ -34,6 +39,7 @@ export default function StudentSidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={onLinkClick} // Close menu on mobile
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
                                 isActive

@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { bookingService } from "@/features/bookings/services/booking.service";
 import { Booking, BookingFilterParams } from "@/features/bookings/types";
-import { Loader2, Calendar, Clock, MapPin, ExternalLink, Filter, X } from "lucide-react";
+import { Clock, Filter, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
-import { formatCurrency } from "@/lib/utils";
 import { BookingDetailsModal } from "@/features/bookings/components/BookingDetailsModal";
 import toast from "react-hot-toast";
 import { ReviewModal } from "@/features/bookings/components/ReviewModal";
@@ -21,7 +20,7 @@ const STATUS_OPTIONS = [
     { value: "CANCELLED", label: "Cancelled" },
 ];
 
-export default function BookingsPage() {
+function BookingsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -341,5 +340,13 @@ export default function BookingsPage() {
                 />
             )}
         </div>
+    );
+}
+
+export default function BookingsPage() {
+    return (
+        <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
+            <BookingsContent />
+        </Suspense>
     );
 }

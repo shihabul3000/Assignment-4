@@ -1,10 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import prisma from '../utils/prisma';
 import { AuthRequest } from '../middleware/auth';
 import { ValidationError, NotFoundError, AuthenticationError } from '../utils/errors';
-
-const prisma = new PrismaClient();
 
 export const userController = {
     async updateProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

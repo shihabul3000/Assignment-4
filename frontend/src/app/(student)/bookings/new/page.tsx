@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { bookingService } from "@/features/bookings/services/booking.service";
 import { tutorService } from "@/features/tutors/services/tutor.service";
 import { TutorProfile } from "@/features/tutors/types";
-import { Loader2, Calendar, Clock, DollarSign, CheckCircle } from "lucide-react";
+import { Loader2, Calendar, Clock, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface BookingFormValues {
@@ -17,7 +16,7 @@ interface BookingFormValues {
     duration: number; // in hours
 }
 
-export default function CreateBookingPage() {
+function CreateBookingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const tutorId = searchParams.get('tutorId');
@@ -74,7 +73,7 @@ export default function CreateBookingPage() {
             } else {
                 toast.error(result.message || "Booking failed");
             }
-        } catch (error) {
+        } catch {
             toast.error("Something went wrong");
         } finally {
             setIsSubmitting(false);
@@ -176,5 +175,13 @@ export default function CreateBookingPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function CreateBookingPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>}>
+            <CreateBookingContent />
+        </Suspense>
     );
 }

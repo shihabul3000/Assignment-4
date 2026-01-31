@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma';
 import { ValidationError, NotFoundError } from '../utils/errors';
 import { AuthRequest } from '../middleware/auth';
 
-const prisma = new PrismaClient();
+
 
 export const adminSettingsController = {
     async getSettings(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

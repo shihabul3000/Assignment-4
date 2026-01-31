@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma';
 import { ValidationError, NotFoundError, AuthorizationError, ConflictError } from '../utils/errors';
 import { AuthRequest } from '../middleware/auth';
 
-const prisma = new PrismaClient();
+
 
 export const reviewController = {
     async create(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

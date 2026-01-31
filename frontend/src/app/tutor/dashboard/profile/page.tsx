@@ -28,7 +28,7 @@ export default function TutorProfileEditPage() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await tutorService.getMyProfile();
+                const response = await tutorService.getMyProfile() as { data?: { tutorProfile?: { user?: { name?: string }, bio?: string, hourlyRate?: number, subjects?: string[] } } };
                 const profile = response.data?.tutorProfile;
 
                 if (profile) {

@@ -4,26 +4,61 @@ import { useEffect, useState } from "react";
 import { adminService } from "@/features/admin/services/admin.service";
 import {
     Users,
-    UserCheck,
     BookOpen,
     DollarSign,
     TrendingUp,
     Loader2,
     BarChart3,
     Activity,
-    Lock
+    Lock,
+    LucideIcon
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+
+interface ReportStats {
+    users: {
+        total: number;
+        students: number;
+        tutors: number;
+        admins: number;
+        banned: number;
+        growth: string;
+    };
+    bookings: {
+        total: number;
+        pending: number;
+        confirmed: number;
+        completed: number;
+        cancelled: number;
+        fulfillmentRate: number;
+    };
+    revenue: {
+        total: number;
+        averageTicket: number;
+        currency: string;
+    };
+    categories: Array<{
+        name: string;
+        count: number;
+        growth: string;
+    }>;
+    platform: {
+        health: string;
+        uptime: string;
+        latency: string;
+    };
+}
+
 export default function AdminReportsPage() {
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<ReportStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchStats = async () => {
         try {
             const response = await adminService.getStats();
             setStats(response.data);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch platform statistics");
         } finally {
             setLoading(false);
@@ -57,10 +92,17 @@ export default function AdminReportsPage() {
         );
     }
 
-    const StatCard = ({ title, value, icon: Icon, color, subtitle, trend }: any) => (
+    const StatCard = ({ title, value, icon: Icon, color, subtitle, trend }: {
+        title: string;
+        value: string | number;
+        icon: LucideIcon;
+        color: string;
+        subtitle: string;
+        trend?: string;
+    }) => (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all group">
             <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${color} text-white shadow-lg shadow-${color.split('-')[1]}/20 group-hover:scale-110 transition-transform`}>
+                <div className={`p-3 rounded-xl ${color} text-white shadow-lg group-hover:scale-110 transition-transform`}>
                     <Icon size={24} />
                 </div>
                 {trend && (
@@ -152,7 +194,7 @@ export default function AdminReportsPage() {
                         <div>
                             <h4 className="text-sm font-bold text-slate-900 mb-4">Top Performing Categories</h4>
                             <div className="space-y-4">
-                                {stats.categories?.map((cat: any) => (
+                                {stats.categories?.map((cat) => (
                                     <div key={cat.name} className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-2 w-2 rounded-full bg-primary" />

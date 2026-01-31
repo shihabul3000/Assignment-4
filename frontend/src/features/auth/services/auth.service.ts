@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/apiClient';
 import { LoginInput, RegisterInput } from '@/features/auth/validators'; // We will define Zod schemas later, or just use types for now
-import { LoginResponse, RegisterResponse, User } from './types';
+import { LoginResponse, RegisterResponse, User } from '../types';
 
 // Loose typing for inputs for now to avoid circular deps before validators exist
 // Ideally we import from a shared types file or define inputs here

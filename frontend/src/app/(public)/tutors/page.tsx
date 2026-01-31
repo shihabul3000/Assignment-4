@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { tutorService } from "@/features/tutors/services/tutor.service";
 import { TutorProfile, PaginatedTutorsResponse } from "@/features/tutors/types";
 import TutorCard from "@/features/tutors/components/TutorCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Search, Filter, ChevronLeft, ChevronRight, Star, X } from "lucide-react";
+import { Search, Filter, ChevronLeft, ChevronRight, Star, X, Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE_OPTIONS = [6, 12, 24];
 
@@ -25,7 +25,7 @@ const RATING_OPTIONS = [
     { value: "2", label: "2+ Stars" },
 ];
 
-export default function TutorsPage() {
+function TutorsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -466,5 +466,20 @@ export default function TutorsPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function TutorsPage() {
+    return (
+        <Suspense fallback={
+            <div className="bg-slate-50 min-h-screen pb-20">
+                <div className="container px-4 md:px-6 py-20 text-center">
+                    <Loader2 className="animate-spin h-8 w-8 text-primary mx-auto" />
+                    <p className="mt-4 text-slate-500">Loading tutors...</p>
+                </div>
+            </div>
+        }>
+            <TutorsContent />
+        </Suspense>
     );
 }

@@ -6,11 +6,18 @@ import { Loader2, Calendar, Clock, ArrowRight, BookOpen, Clock3, LayoutDashboard
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { apiClient } from "@/lib/apiClient";
+import { Booking } from "@/features/bookings/types";
+
+interface StudentStats {
+    totalSessions: number;
+    upcomingSessionsCount: number;
+    hoursLearned: number;
+}
 
 export default function DashboardOverview() {
     const { user } = useAuth();
-    const [stats, setStats] = useState<any>(null);
-    const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
+    const [stats, setStats] = useState<StudentStats | null>(null);
+    const [upcomingSessions, setUpcomingSessions] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -43,7 +50,7 @@ export default function DashboardOverview() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold font-heading text-slate-900">Welcome back, {user?.name.split(' ')[0]}!</h1>
-                    <p className="text-slate-500">Here's what's happening with your learning journey.</p>
+                    <p className="text-slate-500">Here&apos;s what&apos;s happening with your learning journey.</p>
                 </div>
                 <Link href="/tutors">
                     <Button className="bg-primary hover:bg-primary/90">Find a Tutor</Button>
@@ -94,16 +101,16 @@ export default function DashboardOverview() {
                                 <div className="flex items-center gap-4">
                                     <div className="h-12 w-12 rounded-xl bg-slate-50 flex flex-col items-center justify-center border border-slate-100">
                                         <span className="text-[10px] uppercase font-bold text-slate-400 leading-none">
-                                            {new Date(booking.dateTime).toLocaleDateString([], { month: 'short' })}
+                                            {booking.dateTime ? new Date(booking.dateTime).toLocaleDateString([], { month: 'short' }) : 'N/A'}
                                         </span>
                                         <span className="text-lg font-bold text-slate-900 leading-tight">
-                                            {new Date(booking.dateTime).getDate()}
+                                            {booking.dateTime ? new Date(booking.dateTime).getDate() : '-'}
                                         </span>
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-slate-900 group-hover:text-primary transition-colors">{booking.tutor?.name}</h4>
                                         <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
-                                            <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-400" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-400" /> {booking.dateTime ? new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
                                             <span className="flex items-center gap-1.5"><BookOpen size={14} className="text-slate-400" /> {booking.duration} hrs</span>
                                         </div>
                                     </div>
@@ -126,7 +133,7 @@ export default function DashboardOverview() {
                             <Calendar size={24} />
                         </div>
                         <h3 className="text-slate-900 font-bold mb-1">No upcoming sessions</h3>
-                        <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">You don't have any sessions scheduled. Start learning something new today!</p>
+                        <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">You don&apos;t have any sessions scheduled. Start learning something new today!</p>
                         <Link href="/tutors">
                             <Button className="bg-primary hover:bg-primary/90 font-bold px-6">Browse Tutors</Button>
                         </Link>

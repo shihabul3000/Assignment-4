@@ -30,11 +30,12 @@ export default function StudentSettingsPage() {
 
         setIsUpdatingProfile(true);
         try {
-            const response = await userService.updateProfile({ name });
+            await userService.updateProfile({ name });
             updateUser({ name });
             toast.success("Profile updated successfully!");
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to update profile");
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err.response?.data?.message || "Failed to update profile");
         } finally {
             setIsUpdatingProfile(false);
         }
@@ -59,8 +60,9 @@ export default function StudentSettingsPage() {
             setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to change password");
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err.response?.data?.message || "Failed to change password");
         } finally {
             setIsUpdatingPassword(false);
         }
@@ -78,8 +80,9 @@ export default function StudentSettingsPage() {
             await userService.deleteAccount();
             toast.success("Your account has been permanently deleted");
             logout(); // This will clear session and redirect
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to delete account");
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err.response?.data?.message || "Failed to delete account");
             setIsDeleting(false);
             setConfirmDelete(false);
         }

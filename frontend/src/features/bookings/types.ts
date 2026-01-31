@@ -6,6 +6,7 @@ export interface Booking {
     endTime?: string;   // Legacy
     dateTime: string;   // Backend field
     duration: number;   // Backend field
+    totalAmount?: number; // Backend field
     status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
     paymentStatus: 'PENDING' | 'PAID';
     paymentMethod: 'COD';

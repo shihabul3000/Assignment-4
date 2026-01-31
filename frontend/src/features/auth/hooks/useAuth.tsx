@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { authService } from "../services/auth.service";
-import { AuthState } from "../types";
+import { AuthState, User } from "../types";
 import { LoginCredentials, RegisterCredentials } from "../services/auth.service";
 import toast from "react-hot-toast";
 
@@ -13,7 +13,7 @@ interface AuthContextType extends AuthState {
     register: (credentials: RegisterCredentials) => Promise<void>;
     logout: () => void;
     checkAuth: () => Promise<void>;
-    updateUser: (userData: any) => void;
+    updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -120,8 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/login');
     };
 
-    const updateUser = (userData: any) => {
-        setState(prev => ({ ...prev, user: { ...prev.user, ...userData } }));
+    const updateUser = (userData: Partial<User>) => {
+        setState(prev => ({ ...prev, user: prev.user ? { ...prev.user, ...userData } : null }));
     };
 
     return (

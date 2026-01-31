@@ -7,8 +7,19 @@ import { Input } from "@/components/ui/Input";
 import { Loader2, Plus, Tag, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 
+interface Category {
+    id: string;
+    name: string;
+    description?: string;
+    _count?: {
+        tutorProfiles: number;
+    };
+    createdAt?: string;
+}
+
 export default function AdminCategoriesPage() {
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [isAdding, setIsAdding] = useState(false);
     const [newCategory, setNewCategory] = useState({ name: "", description: "" });
@@ -17,7 +28,7 @@ export default function AdminCategoriesPage() {
         try {
             const response = await adminService.getCategories();
             setCategories(response.data.categories);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch categories");
         } finally {
             setLoading(false);
@@ -38,7 +49,7 @@ export default function AdminCategoriesPage() {
             toast.success("Category created successfully");
             setNewCategory({ name: "", description: "" });
             fetchCategories();
-        } catch (error) {
+        } catch {
             toast.error("Failed to create category");
         } finally {
             setIsAdding(false);
@@ -116,7 +127,7 @@ export default function AdminCategoriesPage() {
                                         </div>
                                     </div>
                                     <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">
-                                        {new Date(cat.createdAt).toLocaleDateString()}
+                                        {cat.createdAt ? new Date(cat.createdAt).toLocaleDateString() : "N/A"}
                                     </span>
                                 </div>
                             ))}

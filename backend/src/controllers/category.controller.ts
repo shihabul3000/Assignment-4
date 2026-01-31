@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma';
 import { AuthRequest } from '../middleware/auth';
 
-const prisma = new PrismaClient();
+
 
 export const categoryController = {
     async getAll(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

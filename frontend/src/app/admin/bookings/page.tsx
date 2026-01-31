@@ -2,24 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { adminService } from "@/features/admin/services/admin.service";
-import { Loader2, Calendar, Clock, User, Hash } from "lucide-react";
-import toast from "react-hot-toast";
+import { Loader2, Calendar, Clock, User } from "lucide-react";
+import { Booking } from "@/features/bookings/types";
 
 export default function AdminBookingsPage() {
-    const [bookings, setBookings] = useState<any[]>([]);
+
+    const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchBookings = async () => {
             try {
                 const response = await adminService.getBookings();
-                setBookings(response.data.bookings);
+                setBookings(response.data?.bookings || []);
             } catch (error) {
-                toast.error("Failed to fetch bookings");
+                console.error("Failed to fetch bookings", error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchBookings();
     }, []);
 
@@ -33,62 +35,60 @@ export default function AdminBookingsPage() {
 
     return (
         <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold font-heading text-slate-900">All Bookings</h1>
-                <div className="text-sm text-slate-500">{bookings.length} Total Bookings</div>
-            </div>
+            <h1 className="text-2xl font-bold font-heading text-slate-900 mb-8">System Bookings</h1>
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <table className="w-full text-left text-sm text-slate-600">
-                    <thead className="bg-slate-50 text-slate-900 font-medium">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th className="px-6 py-4 text-xs uppercase">Student</th>
-                            <th className="px-6 py-4 text-xs uppercase">Tutor</th>
-                            <th className="px-6 py-4 text-xs uppercase">Schedule</th>
-                            <th className="px-6 py-4 text-xs uppercase">Status</th>
-                            <th className="px-6 py-4 text-xs uppercase">Amount</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {bookings.map((b) => (
-                            <tr key={b.id} className="hover:bg-slate-50">
+                            <tr key={b.id} className="hover:bg-slate-50 transition-colors">
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                                            <User size={10} />
-                                        </div>
-                                        <span className="font-medium text-slate-900">{b.student?.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-6 w-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-400">
-                                            <User size={10} />
-                                        </div>
-                                        <span className="font-medium text-slate-900">{b.tutor?.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-1 text-[11px]">
-                                            <Calendar size={12} className="text-slate-400" />
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-1.5 text-slate-900 font-medium">
+                                            <Calendar size={14} className="text-slate-400" />
                                             {new Date(b.dateTime).toLocaleDateString()}
                                         </div>
-                                        <div className="flex items-center gap-1 text-[11px]">
-                                            <Clock size={12} className="text-slate-400" />
-                                            {new Date(b.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        <div className="flex items-center gap-1.5 text-slate-500 text-xs mt-1">
+                                            <Clock size={14} className="text-slate-400" />
+                                            {new Date(b.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({b.duration}h)
                                         </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                            <User size={16} />
+                                        </div>
+                                        <div className="text-sm">
+                                            <div className="font-medium text-slate-900">{b.tutor?.name}</div>
+                                            <div className="text-slate-500 text-xs">{b.tutor?.email}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="text-sm">
+                                        <div className="font-medium text-slate-900">{b.student?.name}</div>
+                                        <div className="text-slate-500 text-xs">{b.student?.email}</div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${b.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                                            b.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-700'
+                                        b.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-700'
                                         }`}>
                                         {b.status}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 font-bold text-slate-900">
-                                    {b.totalAmount} BDT
+                                    {b.duration * (b.tutor?.hourlyRate || 0)} BDT
                                 </td>
                             </tr>
                         ))}

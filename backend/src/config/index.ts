@@ -9,7 +9,7 @@ export const config = {
     databaseUrl: process.env.DATABASE_URL || '',
 
     // JWT
-    jwtSecret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    jwtSecret: process.env.JWT_SECRET || '',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
     // Better Auth

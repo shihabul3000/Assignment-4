@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { tutorService } from "@/features/tutors/services/tutor.service";
 import { Availability } from "@/features/tutors/types";
@@ -37,7 +37,7 @@ export default function AvailabilityPage() {
                 if (profile?.availabilities && Array.isArray(profile.availabilities)) {
                     setAvailabilities(profile.availabilities);
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Failed to load availability");
             } finally {
                 setLoading(false);
@@ -75,7 +75,7 @@ export default function AvailabilityPage() {
             } else {
                 toast.error("Failed to update availability");
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred");
         } finally {
             setSaving(false);

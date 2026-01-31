@@ -5,10 +5,36 @@ import { Users, BookOpen, UserCheck, Banknote, Loader2, AlertCircle } from "luci
 import { adminService } from "@/features/admin/services/admin.service";
 import { Button } from "@/components/ui/Button";
 
+interface AdminStats {
+    users: {
+        total: number;
+        students: number;
+        tutors: number;
+        admins: number;
+    };
+    bookings: {
+        total: number;
+        pending: number;
+        confirmed: number;
+        completed: number;
+        cancelled: number;
+    };
+    revenue: {
+        total: number;
+        currency: string;
+    };
+    platform: {
+        health: string;
+        uptime: string;
+        latency: string;
+    };
+}
+
 export default function AdminDashboardOverview() {
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<AdminStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
 
     const fetchStats = async () => {
         setLoading(true);
@@ -16,7 +42,7 @@ export default function AdminDashboardOverview() {
         try {
             const response = await adminService.getStats();
             setStats(response.data);
-        } catch (err) {
+        } catch {
             setError(true);
         } finally {
             setLoading(false);
@@ -35,7 +61,7 @@ export default function AdminDashboardOverview() {
         );
     }
 
-    if (error) {
+    if (error || !stats) {
         return (
             <div className="p-8">
                 <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-xl flex flex-col items-center gap-4 text-center">
@@ -49,6 +75,7 @@ export default function AdminDashboardOverview() {
             </div>
         );
     }
+
 
     return (
         <div className="p-8 space-y-8">
